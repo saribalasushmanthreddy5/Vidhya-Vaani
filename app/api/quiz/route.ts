@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
         question: "What is the primary site of complete digestion of carbohydrates, proteins, and fats in the human body?",
         options: ["Stomach", "Small Intestine", "Large Intestine", "Mouth"],
         correct_index: 1,
+        topic: "Digestion & Enzymes",
         explanation: "The small intestine is the site of complete digestion, assisted by bile juice and pancreatic enzymes.",
         page: 3
       },
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
           "Pyruvate ---> Lactic acid + 2ATP"
         ],
         correct_index: 0,
+        topic: "Photosynthesis & Chlorophyll",
         explanation: "6CO2 + 12H2O with solar energy trapped by chlorophyll synthesizes glucose, water, and oxygen.",
         page: 1
       },
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
           "To absorb water from undigested food"
         ],
         correct_index: 2,
+        topic: "Gastric Juice & Stomach Acid",
         explanation: "HCl creates an acidic pH (1.5-2.5) that activates pepsin to digest proteins.",
         page: 3
       },
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
         question: "During vigorous muscular exercise in humans, sudden cramps occur due to the accumulation of:",
         options: ["Ethanol", "Lactic Acid", "Carbon Dioxide", "Hydrochloric Acid"],
         correct_index: 1,
+        topic: "Cellular Respiration & Muscle Fatigue",
         explanation: "Anaerobic respiration in muscle cells produces lactic acid, causing cramps.",
         page: 4
       },
@@ -62,6 +66,7 @@ export async function POST(req: NextRequest) {
           "By releasing oxygen into the air"
         ],
         correct_index: 1,
+        topic: "Stomatal Gas Exchange",
         explanation: "Water entering guard cells makes them turgid, opening the pore; losing water causes them to shrink and close the pore.",
         page: 2
       }
@@ -76,6 +81,7 @@ Format your response as a valid, pure JSON array without markdown code blocks, w
 - "question": string
 - "options": array of 4 strings
 - "correct_index": integer (0, 1, 2, or 3)
+- "topic": string (concise concept name like 'Photosynthesis', 'Respiration', 'Digestion')
 - "explanation": string
 - "page": integer (the page number cited)`;
 

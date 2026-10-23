@@ -4,14 +4,16 @@ import { retrieveRelevantPassages, LANGUAGES } from "@/lib/textbookData";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { query, language = "English", actionType = "normal" } = body;
+    const { query, language = "English", actionType = "normal", imageBase64, imageMimeType = "image/jpeg" } = body;
 
-    if (!query || typeof query !== "string") {
-      return NextResponse.json({ error: "Query is required" }, { status: 400 });
+    if (!query && !imageBase64) {
+      return NextResponse.json({ error: "Query or image is required" }, { status: 400 });
     }
 
+    const effectiveQuery = query || "Please read this textbook question and explain the answer step by step.";
+
     // Retrieve top grounded textbook passages
-    const retrieved = retrieveRelevantPassages(query, 3);
+    const retrieved = retrieveRelevantPassages(effectiveQuery, 3);
     const hasMatch = retrieved.length > 0 && retrieved[0].score > 0;
     const topPassages = retrieved.map((r) => r.chunk);
     const topChunk = topPassages[0];
@@ -43,28 +45,43 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt = `You are VidyaVaani (ವಿಧ್ಯಾವಾಣಿ / विद्यावाणी), a compassionate, voice-first AI tutor for Indian school students.
-Context from NCERT Science textbooks:
+Context from NCERT Class 10 Science textbook (Chapter: Life Processes):
 ${contextText}
 
-Instructions:
-1. Grounding & Accuracy: If the question relates to the textbook passages above, answer directly and cite the page number (e.g. [Page ${topChunk?.page || 1}]).
-2. Out-of-Passage Questions: If the question asks about a science topic like NaCl, chemistry, or physics that is in another chapter or not fully detailed above, answer accurately and explain which science chapter covers it.
-3. Language: Respond in ${language}. Maintain a warm, encouraging teacher's tone.
-4. Action: ${promptInstruction}
-5. Voice-Readiness: Keep explanations clear, natural to speak aloud, and well-structured.`;
+Strict Rules:
+1. Grounding & Accuracy: Answer using the provided textbook context whenever relevant. Always cite the exact page number (e.g. [Page ${topChunk?.page || 1}]).
+2. "I Don't Know" Fallback (Anti-Hallucination): If the student's question or image is completely outside this textbook chapter (e.g. sports, politics, unrelated subjects, or completely off-topic), you MUST politely refuse to answer, explaining in ${language}:
+   "I cannot find this topic in your textbook chapter (NCERT Class 10: Life Processes). To prevent incorrect or ungrounded explanations, please ask a question related to this chapter."
+3. Multimodal: If an image of a textbook page or question is provided, extract the question from the image and solve it step-by-step grounded in NCERT concepts.
+4. Language: Respond fluently in ${language}. Maintain a warm, encouraging teacher's tone.
+5. Action: ${promptInstruction}
+6. Voice-Readiness: Keep explanations clear, natural to speak aloud, and well-structured.`;
 
     // Try candidate models in order
     for (const model of candidateModels) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        
+        const userParts: any[] = [{ text: systemPrompt }];
+        
+        if (imageBase64) {
+          // Multimodal image part for Gemini Vision (Photo-a-Question)
+          userParts.push({
+            inlineData: {
+              mimeType: imageMimeType,
+              data: imageBase64.replace(/^data:image\/\w+;base64,/, ""),
+            },
+          });
+          userParts.push({ text: `Student snapped a photo of their textbook question: "${effectiveQuery}"` });
+        } else {
+          userParts.push({ text: `Student Question: ${effectiveQuery}` });
+        }
+
         const payload = {
           contents: [
             {
               role: "user",
-              parts: [
-                { text: systemPrompt },
-                { text: `Student Question: ${query}` },
-              ],
+              parts: userParts,
             },
           ],
           generationConfig: {
@@ -101,7 +118,7 @@ Instructions:
       if (hasMatch) {
         answer = `According to your NCERT Textbook [Page ${topChunk.page} - ${topChunk.section}]:\n\n${topChunk.text}`;
       } else {
-        answer = `This topic ("${query}") is not found in Chapter 6: Life Processes. Life Processes covers Photosynthesis, Digestion, Respiration, and Gas Exchange. You can ask about Photosynthesis, Stomach HCl, Respiration, or select an option from the suggestions below!`;
+        answer = `I cannot find this topic in your textbook chapter (NCERT Class 10: Life Processes). To prevent incorrect or ungrounded explanations, please ask a question related to this chapter (such as Photosynthesis, Digestion, Respiration, or Excretion).`;
       }
     }
 
@@ -116,7 +133,7 @@ Instructions:
           }))
         : [],
       language,
-      query,
+      query: effectiveQuery,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
