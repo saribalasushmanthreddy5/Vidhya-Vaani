@@ -1,12 +1,14 @@
 """
 VidyaVaani (ವಿಧ್ಯಾವಾಣಿ / विद्यावाणी): Voice-First Multilingual AI Tutor
-Synapse Design System Interface:
-- Vantablack (#030303) foundation with ambient floating violet & cyan glowing orbs
-- Instrument Serif typography for high-impact editorial headings
-- Crisp Inter typography & JetBrains Mono for metrics and UI
-- Floating Glass Navigation Pill, Infinite Marquee Metrics Ticker, and 3-Column Interactive Cards
-- High-Tech Dark IDE-Style Tutor Response block with terminal window controls
-- Zero API keys exposed on frontend; all backend logic and AI credentials safely server-side
+Synapse Design System (SuperDesign-matched aesthetic):
+- Vantablack (#030303) canvas with central violet neural bloom & floating ambient glow orbs
+- Floating Synapse Assistant Card with staggered interactive option pills (matched to reference screenshot)
+- Sleek bottom input dock with voice mic, chapter badge, and circular upward-arrow submit button
+- Instrument Serif editorial typography & shimmering gradient text
+- Infinite horizontal metrics marquee ticker
+- 6-card feature grid matching Synapse architecture
+- Glassmorphic practice quiz with interactive selection cards
+- Zero exposed keys on client; 100% server-side Gemini 3.8 Flash & Azure Neural TTS
 """
 
 import os
@@ -54,21 +56,21 @@ except ImportError:
 # PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
-    page_title="VidyaVaani • Synapse Voice AI Tutor",
+    page_title="VidyaVaani • Synapse Voice AI",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ==========================================
-# SYNAPSE DESIGN SYSTEM CSS INJECTION
+# SYNAPSE SUPERDESIGN CSS INJECTION
 # ==========================================
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+Bengali:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&display=swap');
 
-    /* Global Reset & Vantablack Base */
+    /* Vantablack Base (#030303) */
     html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
         background-color: #030303 !important;
         color: #EDEDED !important;
@@ -76,42 +78,37 @@ st.markdown(
     }
     
     [data-testid="stSidebar"] {
-        background-color: #060606 !important;
+        background-color: #070708 !important;
         border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
     }
 
-    /* Ambient Floating Orbs */
-    .synapse-orb-violet {
+    /* Ambient Neural Flare / Bloom (Matched to Reference Screenshot) */
+    .synapse-bloom {
         position: fixed;
-        width: 650px;
-        height: 650px;
-        top: -120px;
+        width: 800px;
+        height: 480px;
+        bottom: 0px;
         left: 50%;
         transform: translateX(-50%);
-        background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, rgba(139, 92, 246, 0) 70%);
-        filter: blur(85px);
+        background: radial-gradient(ellipse at 50% 100%, rgba(139, 92, 246, 0.38) 0%, rgba(124, 58, 237, 0.18) 35%, rgba(6, 182, 212, 0.08) 60%, transparent 75%);
+        filter: blur(55px);
         pointer-events: none;
         z-index: 0;
-        animation: floatOrb 12s ease-in-out infinite alternate;
     }
-    .synapse-orb-cyan {
+    .synapse-orb-top {
         position: fixed;
-        width: 550px;
-        height: 550px;
-        top: 380px;
-        left: -120px;
-        background: radial-gradient(circle, rgba(6, 182, 212, 0.14) 0%, rgba(6, 182, 212, 0) 70%);
-        filter: blur(95px);
+        width: 600px;
+        height: 600px;
+        top: -160px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, transparent 65%);
+        filter: blur(80px);
         pointer-events: none;
         z-index: 0;
-        animation: floatOrb 15s ease-in-out infinite alternate-reverse;
-    }
-    @keyframes floatOrb {
-        0% { transform: translateY(0px) scale(1); }
-        100% { transform: translateY(-24px) scale(1.05); }
     }
 
-    /* Typography Classes */
+    /* Typography */
     .font-serif {
         font-family: 'Instrument Serif', Georgia, serif !important;
         letter-spacing: -0.025em;
@@ -120,9 +117,9 @@ st.markdown(
         font-family: 'JetBrains Mono', monospace !important;
     }
 
-    /* Text Shimmer Animation */
+    /* Shimmer Text */
     .shimmer-text {
-        background: linear-gradient(90deg, #A78BFA 0%, #FFFFFF 40%, #FFFFFF 60%, #22D3EE 100%);
+        background: linear-gradient(90deg, #A78BFA 0%, #FFFFFF 35%, #FFFFFF 65%, #22D3EE 100%);
         background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -139,12 +136,14 @@ st.markdown(
         display: flex;
         justify-content: center;
         width: 100%;
-        margin-bottom: 28px;
+        margin-bottom: 24px;
+        position: relative;
+        z-index: 10;
     }
     .nav-pill {
         width: 100%;
         max-width: 672px;
-        background: rgba(10, 10, 10, 0.72);
+        background: rgba(10, 10, 10, 0.75);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -153,8 +152,7 @@ st.markdown(
         display: flex;
         align-items: center;
         justify-content: space-between;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8), 0 0 20px -10px rgba(139, 92, 246, 0.3);
-        z-index: 10;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.9), 0 0 20px -10px rgba(139, 92, 246, 0.25);
     }
     .nav-brand {
         display: flex;
@@ -173,13 +171,12 @@ st.markdown(
         font-size: 1.25rem;
         color: #FFFFFF;
         font-weight: 500;
-        letter-spacing: -0.01em;
     }
     .nav-links {
         display: flex;
         gap: 12px;
         align-items: center;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 600;
         color: #9CA3AF;
         text-transform: uppercase;
@@ -188,7 +185,7 @@ st.markdown(
     .nav-cta {
         background: #FFFFFF;
         color: #030303;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 700;
         padding: 5px 14px;
         border-radius: 9999px;
@@ -196,79 +193,83 @@ st.markdown(
         align-items: center;
         gap: 6px;
         letter-spacing: 0.02em;
-        transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .nav-cta:hover {
-        transform: scale(1.04);
     }
 
     /* Hero Section */
     .hero-container {
         text-align: center;
-        padding: 36px 16px 28px 16px;
+        padding: 24px 16px 20px 16px;
         position: relative;
         z-index: 1;
     }
+    .status-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        border-radius: 9999px;
+        padding: 4px 14px;
+        font-size: 0.78rem;
+        color: #C4B5FD;
+        margin-bottom: 16px;
+        font-family: 'JetBrains Mono', monospace;
+    }
     .hero-heading {
         font-family: 'Instrument Serif', Georgia, serif;
-        font-size: 3.6rem;
-        line-height: 1.04;
+        font-size: 4rem;
+        line-height: 1.02;
         font-weight: 400;
         color: #FFFFFF;
         margin-bottom: 14px;
         letter-spacing: -0.035em;
+    }
+    @media (max-width: 768px) {
+        .hero-heading { font-size: 2.5rem; }
     }
     .hero-subtext {
         font-family: 'Inter', sans-serif;
         font-size: 1.05rem;
         color: #9CA3AF;
         max-width: 680px;
-        margin: 0 auto 24px auto;
+        margin: 0 auto 20px auto;
         line-height: 1.55;
         font-weight: 300;
     }
     .hero-badges-row {
         display: flex;
         justify-content: center;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
-        margin-top: 10px;
     }
     .synapse-badge {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 9999px;
-        padding: 6px 16px;
-        font-size: 0.82rem;
+        padding: 5px 14px;
+        font-size: 0.8rem;
         color: #D1D5DB;
         display: inline-flex;
         align-items: center;
-        gap: 7px;
+        gap: 6px;
         font-family: 'Inter', sans-serif;
-        transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .synapse-badge:hover {
-        border-color: rgba(139, 92, 246, 0.4);
-        box-shadow: 0 0 15px -5px rgba(139, 92, 246, 0.4);
-        color: #FFFFFF;
     }
 
-    /* Infinite Metrics Marquee Ticker */
+    /* Infinite Marquee Ticker */
     .ticker-wrapper {
         width: 100%;
         overflow: hidden;
-        background: rgba(0, 0, 0, 0.45);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        margin: 24px 0 32px 0;
-        padding: 14px 0;
-        position: relative;
+        background: rgba(0, 0, 0, 0.5);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin: 22px 0 28px 0;
+        padding: 12px 0;
     }
     .ticker-track {
         display: flex;
         width: max-content;
-        animation: tickerMarquee 38s linear infinite;
+        animation: tickerMarquee 40s linear infinite;
         gap: 36px;
     }
     @keyframes tickerMarquee {
@@ -278,7 +279,7 @@ st.markdown(
     .ticker-item {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         font-family: 'JetBrains Mono', monospace;
     }
     .ticker-label {
@@ -288,7 +289,7 @@ st.markdown(
         letter-spacing: 0.2em;
     }
     .ticker-value {
-        font-size: 0.88rem;
+        font-size: 0.84rem;
         font-weight: 600;
         color: #F3F4F6;
     }
@@ -296,72 +297,232 @@ st.markdown(
     .ticker-accent-cyan { color: #22D3EE; }
     .ticker-accent-emerald { color: #34D399; }
 
-    /* Interactive Feature Cards (3-column) */
-    .synapse-feature-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-bottom: 32px;
-    }
-    @media (max-width: 900px) {
-        .synapse-feature-grid { grid-template-columns: 1fr; }
-    }
-    .synapse-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 24px;
-        padding: 26px 28px;
-        transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.35s, box-shadow 0.35s;
+    /* =====================================================================
+       SUPERDESIGN FLOATING CHAT CARD & OPTION PILLS (EXACT REFERENCE UI)
+       ===================================================================== */
+    .superdesign-card {
+        background: #0C0C0E;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 26px;
+        padding: 22px 24px;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 35px -12px rgba(139, 92, 246, 0.25);
         position: relative;
         overflow: hidden;
+        margin-bottom: 20px;
     }
-    .synapse-card:hover {
-        transform: translateY(-8px);
-        border-color: rgba(139, 92, 246, 0.4);
-        box-shadow: 0 0 25px -8px rgba(139, 92, 246, 0.35);
-        background: rgba(255, 255, 255, 0.035);
+    .superdesign-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 16px;
     }
-    .card-icon-box {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        background: rgba(139, 92, 246, 0.12);
-        border: 1px solid rgba(139, 92, 246, 0.25);
+    .superdesign-title-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .superdesign-grid-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.3rem;
-        margin-bottom: 16px;
-        transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        font-size: 1.05rem;
     }
-    .synapse-card:hover .card-icon-box {
-        transform: scale(1.1) rotate(-4deg);
-    }
-    .card-title {
-        font-family: 'Instrument Serif', Georgia, serif;
-        font-size: 1.45rem;
+    .superdesign-title {
+        font-weight: 600;
+        font-size: 0.96rem;
         color: #FFFFFF;
-        margin-bottom: 8px;
-        font-weight: 500;
+        letter-spacing: -0.01em;
     }
-    .card-body {
+    .superdesign-subtitle {
+        font-size: 0.74rem;
         color: #9CA3AF;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        font-weight: 300;
+    }
+    .superdesign-controls {
+        display: flex;
+        gap: 10px;
+        color: #6B7280;
+        font-size: 0.88rem;
+    }
+    
+    /* Speech Bubble in Chat Card */
+    .superdesign-bubble {
+        background: #18181B;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 20px 20px 20px 6px;
+        padding: 16px 20px;
+        color: #F4F4F5;
+        font-size: 0.93rem;
+        line-height: 1.55;
+        margin-bottom: 6px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+    .superdesign-bubble-meta {
+        font-size: 0.72rem;
+        color: #71717A;
+        margin-left: 6px;
+        margin-bottom: 18px;
+    }
+
+    /* Option Pills Section Header */
+    .pills-section-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #71717A;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* SuperDesign Floating Option Pills (Matched to Reference Screenshot) */
+    [data-testid="stTabs"] [data-testid="column"]:first-child .stButton {
+        display: flex !important;
+        justify-content: flex-end !important;
+        margin-bottom: 8px !important;
+    }
+    [data-testid="stTabs"] [data-testid="column"]:first-child .stButton button {
+        background: #18181B !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 9999px !important;
+        color: #E4E4E7 !important;
+        padding: 9px 20px !important;
+        font-size: 0.88rem !important;
+        font-weight: 400 !important;
+        font-family: 'Inter', sans-serif !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        width: auto !important;
+        max-width: 100% !important;
+    }
+    [data-testid="stTabs"] [data-testid="column"]:first-child .stButton button:hover {
+        background: #27272A !important;
+        border-color: rgba(139, 92, 246, 0.55) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-2px) scale(1.02) !important;
+        box-shadow: 0 0 18px -2px rgba(139, 92, 246, 0.45) !important;
+    }
+    [data-testid="stTabs"] [data-testid="column"]:first-child .stButton button:active {
+        transform: scale(0.97) !important;
+    }
+
+    /* Generic button fallback */
+    .stButton > button {
+        background: rgba(255, 255, 255, 0.035) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 9999px !important;
+        color: #E5E7EB !important;
+        padding: 8px 18px !important;
+        font-size: 0.88rem !important;
+        font-weight: 400 !important;
+        font-family: 'Inter', sans-serif !important;
+        transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
+    }
+    .stButton > button:hover {
+        background: rgba(139, 92, 246, 0.14) !important;
+        border-color: rgba(139, 92, 246, 0.45) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-2px) scale(1.02) !important;
+    }
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 0 22px -5px rgba(124, 58, 237, 0.6) !important;
+        font-weight: 600 !important;
+    }
+
+    /* Input Dock in Chat Column (Pill input + Circular send button) */
+    .dock-meta-icons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding: 0 4px;
+        font-size: 0.74rem;
+        color: #71717A;
+    }
+    .dock-meta-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 9999px;
+        padding: 3px 10px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    [data-testid="stTabs"] [data-testid="column"]:first-child .stTextInput input {
+        background: #111114 !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 9999px !important;
+        color: #FFFFFF !important;
+        padding: 12px 20px !important;
+        font-size: 0.92rem !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    [data-testid="stTabs"] [data-testid="column"]:first-child .stTextInput input:focus {
+        border-color: #8B5CF6 !important;
+        box-shadow: 0 0 20px -3px rgba(139, 92, 246, 0.45) !important;
+    }
+    [data-testid="stTabs"] [data-testid="column"]:first-child [data-testid="stFormSubmitButton"] button {
+        background: #1E1E24 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 50% !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.15rem !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    [data-testid="stTabs"] [data-testid="column"]:first-child [data-testid="stFormSubmitButton"] button:hover {
+        background: #7C3AED !important;
+        border-color: #8B5CF6 !important;
+        transform: translateY(-2px) scale(1.06) !important;
+        box-shadow: 0 0 22px rgba(139, 92, 246, 0.7) !important;
+    }
+
+    .stTextInput input {
+        background: #111114 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 9999px !important;
+        color: #F3F4F6 !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 13px 22px !important;
+        font-size: 0.95rem !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    .stTextInput input:focus {
+        border-color: #8B5CF6 !important;
+        box-shadow: 0 0 20px -3px rgba(139, 92, 246, 0.45) !important;
     }
 
     /* Dark IDE-Style Tutor Response Block */
     .ide-window {
-        background: rgba(8, 8, 8, 0.85);
+        background: rgba(8, 8, 8, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
         overflow: hidden;
         margin: 20px 0;
-        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.9), 0 0 25px -10px rgba(139, 92, 246, 0.25);
+        box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.9), 0 0 25px -10px rgba(139, 92, 246, 0.25);
     }
     .ide-toolbar {
-        background: rgba(16, 16, 16, 0.95);
+        background: rgba(16, 16, 18, 0.95);
         border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         padding: 10px 18px;
         display: flex;
@@ -388,14 +549,6 @@ st.markdown(
         color: #9CA3AF;
         letter-spacing: 0.04em;
     }
-    .ide-status {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.72rem;
-        color: #10B981;
-    }
     .pulse-dot {
         width: 6px;
         height: 6px;
@@ -415,68 +568,82 @@ st.markdown(
         line-height: 1.68;
         color: #F3F4F6;
     }
-    .ide-citation {
-        display: inline-block;
-        background: rgba(139, 92, 246, 0.15);
-        border: 1px solid rgba(139, 92, 246, 0.3);
-        color: #C4B5FD;
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.78rem;
-        font-weight: 600;
-        margin: 0 2px;
+
+    /* 6-Card Feature Grid (Matched to Second Reference Screenshot) */
+    .synapse-feature-grid-6 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin: 36px 0;
+    }
+    @media (max-width: 900px) {
+        .synapse-feature-grid-6 { grid-template-columns: 1fr; }
+    }
+    .feature-card-synapse {
+        background: #0A0A0C;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        padding: 24px 26px;
+        transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.35s, box-shadow 0.35s;
+    }
+    .feature-card-synapse:hover {
+        transform: translateY(-6px);
+        border-color: rgba(139, 92, 246, 0.4);
+        box-shadow: 0 0 25px -8px rgba(139, 92, 246, 0.3);
+        background: #0F0F12;
+    }
+    .feature-icon-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 14px;
+        transition: transform 0.3s;
+    }
+    .feature-card-synapse:hover .feature-icon-box {
+        transform: scale(1.08) rotate(-4deg);
+    }
+    .feature-title {
+        font-family: 'Instrument Serif', Georgia, serif;
+        font-size: 1.35rem;
+        color: #FFFFFF;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+    .feature-desc {
+        color: #9CA3AF;
+        font-size: 0.86rem;
+        line-height: 1.5;
+        font-weight: 300;
     }
 
-    /* Shiny Neon Buttons & Controls */
-    .stButton > button {
-        background: rgba(18, 18, 18, 0.8) !important;
-        color: #F9FAFB !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        border-radius: 9999px !important;
-        font-family: 'Inter', sans-serif !important;
-        font-weight: 500 !important;
-        font-size: 0.88rem !important;
-        padding: 8px 22px !important;
-        transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1) !important;
-    }
-    .stButton > button:hover {
-        border-color: rgba(139, 92, 246, 0.6) !important;
-        box-shadow: 0 0 20px -5px rgba(139, 92, 246, 0.45) !important;
-        transform: translateY(-2px) !important;
-        background: rgba(28, 28, 35, 0.9) !important;
-        color: #FFFFFF !important;
-    }
-    .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 0 20px -5px rgba(124, 58, 237, 0.5) !important;
-    }
-    .stButton > button[kind="primary"]:hover {
-        box-shadow: 0 0 28px -3px rgba(124, 58, 237, 0.75) !important;
-        transform: translateY(-2px) scale(1.02) !important;
-    }
-
-    /* Input Fields */
-    .stTextInput input {
-        background: rgba(12, 12, 12, 0.8) !important;
-        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    /* Radio Options Card Transformation (Practice Quiz) */
+    [data-testid="stRadio"] label {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border: 1px solid rgba(255, 255, 255, 0.07) !important;
         border-radius: 14px !important;
-        color: #F3F4F6 !important;
-        font-family: 'Inter', sans-serif !important;
         padding: 12px 18px !important;
-        transition: border-color 0.2s, box-shadow 0.2s !important;
+        margin-bottom: 8px !important;
+        transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1) !important;
+        color: #D1D5DB !important;
+        font-size: 0.92rem !important;
     }
-    .stTextInput input:focus {
-        border-color: #8B5CF6 !important;
-        box-shadow: 0 0 15px -3px rgba(139, 92, 246, 0.4) !important;
+    [data-testid="stRadio"] label:hover {
+        background: rgba(139, 92, 246, 0.08) !important;
+        border-color: rgba(139, 92, 246, 0.4) !important;
+        color: #FFFFFF !important;
+        transform: translateX(4px) !important;
     }
 
     /* Tabs Styling */
     .stTabs [data-baseweb="tab-list"] {
         background: transparent !important;
-        gap: 16px !important;
+        gap: 14px !important;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         margin-bottom: 24px !important;
     }
@@ -484,45 +651,14 @@ st.markdown(
         background: transparent !important;
         color: #9CA3AF !important;
         font-family: 'Inter', sans-serif !important;
-        font-size: 0.9rem !important;
+        font-size: 0.88rem !important;
         font-weight: 500 !important;
-        padding: 10px 18px !important;
+        padding: 8px 16px !important;
         border: none !important;
-        letter-spacing: 0.02em !important;
     }
     .stTabs [aria-selected="true"] {
         color: #FFFFFF !important;
         border-bottom: 2px solid #8B5CF6 !important;
-    }
-
-    /* Passage Citation Cards */
-    .synapse-passage {
-        background: rgba(255, 255, 255, 0.018);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
-        padding: 14px 18px;
-        margin-bottom: 10px;
-    }
-    .synapse-passage-header {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.78rem;
-        color: #A78BFA;
-        font-weight: 600;
-        margin-bottom: 6px;
-    }
-
-    /* Metrics Cards */
-    [data-testid="stMetricValue"] {
-        font-family: 'JetBrains Mono', monospace !important;
-        color: #F3F4F6 !important;
-        font-size: 2rem !important;
-    }
-    [data-testid="stMetricLabel"] {
-        font-family: 'Inter', sans-serif !important;
-        color: #6B7280 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.15em !important;
-        font-size: 0.72rem !important;
     }
 
     /* Footer */
@@ -530,7 +666,7 @@ st.markdown(
         background: #050505;
         border-top: 1px solid rgba(255, 255, 255, 0.06);
         padding: 40px 16px 24px 16px;
-        margin-top: 60px;
+        margin-top: 50px;
         font-family: 'Inter', sans-serif;
     }
     .footer-grid {
@@ -538,19 +674,19 @@ st.markdown(
         grid-template-columns: 2fr 1fr 1fr 1fr;
         gap: 24px;
         max-width: 1100px;
-        margin: 0 auto 32px auto;
+        margin: 0 auto 28px auto;
     }
     @media (max-width: 800px) {
         .footer-grid { grid-template-columns: 1fr; }
     }
     .footer-brand-title {
         font-family: 'Instrument Serif', Georgia, serif;
-        font-size: 1.8rem;
+        font-size: 1.7rem;
         color: #FFFFFF;
         margin-bottom: 6px;
     }
     .footer-col-head {
-        font-size: 0.72rem;
+        font-size: 0.7rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.2em;
@@ -559,27 +695,27 @@ st.markdown(
     }
     .footer-link {
         color: #9CA3AF;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         margin-bottom: 6px;
         display: block;
         text-decoration: none;
     }
     .footer-bottom-bar {
         border-top: 1px solid rgba(255, 255, 255, 0.04);
-        padding-top: 20px;
+        padding-top: 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         max-width: 1100px;
         margin: 0 auto;
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         color: #6B7280;
     }
     </style>
     
-    <!-- Ambient Floating Glow Orbs in DOM -->
-    <div class="synapse-orb-violet"></div>
-    <div class="synapse-orb-cyan"></div>
+    <!-- Ambient Background Elements -->
+    <div class="synapse-orb-top"></div>
+    <div class="synapse-bloom"></div>
     """,
     unsafe_allow_html=True
 )
@@ -642,106 +778,40 @@ def activate_subject(subj: Dict[str, Any]):
     return False
 
 
-def get_demo_questions(subject_name: str, chunks: List[Dict[str, Any]], language_key: str = "English") -> List[str]:
-    """Preloads sample presentation questions for the current subject."""
-    all_text = " ".join([c.get("text", "") for c in (chunks or [])[:8]]).lower()
-    is_life_processes = (
-        "photosynthesis" in all_text or 
-        "respiration" in all_text or 
-        "science" in (subject_name or "").lower() or
-        "life processes" in (subject_name or "").lower()
-    )
-
-    if is_life_processes:
-        if language_key == "Hindi":
-            return [
-                "प्रकाश संश्लेषण की रासायनिक समीकरण क्या है?",
-                "वायवीय और अवायवीय श्वसन में क्या अंतर है?",
-                "आमाशय में हाइड्रोक्लोरिक अम्ल (HCl) की क्या भूमिका है?",
-                "द्वार कोशिकाएं रंध्रों को कैसे खोलती और बंद करती हैं?",
-                "व्यायाम के दौरान मांसपेशियों में लैक्टिक एसिड क्यों बनता है?"
-            ]
-        elif language_key == "Kannada":
-            return [
-                "ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆಯ ರಾಸಾಯನಿಕ ಸಮೀಕರಣವೇನು?",
-                "ವಾಯುವಿಕ ಮತ್ತು ಅವಾಯುವಿಕ ಉಸಿರಾಟದ ನಡುವಿನ ವ್ಯತ್ಯಾಸವೇನು?",
-                "ಜಠರದಲ್ಲಿ ಹೈಡ್ರೋಕ್ಲೋರಿಕ್ ಆಮ್ಲದ (HCl) ಪಾತ್ರವೇನು?",
-                "ಕಾವಲು ಕೋಶಗಳು ಪತ್ರರಂಧ್ರಗಳನ್ನು ಹೇಗೆ ತೆರೆಯುತ್ತವೆ ಮತ್ತು ಮುಚ್ಚುತ್ತವೆ?",
-                "ವ್ಯಾಯಾಮದ ಸಮಯದಲ್ಲಿ ಸ್ನಾಯು ಕೋಶಗಳಲ್ಲಿ ಲ್ಯಾಕ್ಟಿಕ್ ಆಮ್ಲ ಏಕೆ ಸಂಗ್ರಹವಾಗುತ್ತದೆ?"
-            ]
-        elif language_key == "Telugu":
-            return [
-                "కిరణజన్య సంయోగక్రియ రసాయన సమీకరణం ఏమిటి?",
-                "వాయు సహిత మరియు అవాయు శ్వాసక్రియ మధ్య తేడా ఏమిటి?",
-                "జీర్ణాశయంలో హైడ్రోక్లోరిక్ ఆమ్లం (HCl) పాత్ర ఏమిటి?",
-                "రక్షక కణాలు పత్రరంధ్రాలను ఎలా తెరుస్తాయి మరియు మూస్తాయి?",
-                "వ్యాయామం చేసేటప్పుడు కండరాలలో లాక్టిక్ ఆమ్లం ఎందుకు పేరుకుపోతుంది?"
-            ]
-        elif language_key == "Tamil":
-            return [
-                "ஒளிச்சேர்க்கையின் வேதியியல் சமன்பாடு என்ன?",
-                "காற்றுள்ள மற்றும் காற்றில்லா சுவாசத்திற்கு உள்ள வேறுபாடு என்ன?",
-                "இரைப்பையில் ஹைட்ரோகுளோரிக் அமிலத்தின் (HCl) பங்கு என்ன?",
-                "காப்பு செல்கள் இலைத்துளைகளை எவ்வாறு திறந்து மூடுகின்றன?",
-                "உடற்பயிற்சியின் போது தசை செல்களில் லாக்டிக் அமிலம் ஏன் உருவாகிறது?"
-            ]
-        elif language_key == "Marathi":
-            return [
-                "प्रकाशसंश्लेषण रासायनिक समीकरण काय आहे?",
-                "ऑक्सिश्वसन आणि विनाक्सिश्वसन यातील फरक काय आहे?",
-                "जठरामध्ये हायड्रोक्लोरिक आम्लाची (HCl) भूमिका काय आहे?",
-                "रक्षक पेशी पर्णरंध्रे कशी उघडतात आणि बंद करतात?",
-                "व्यायामादरम्यान स्नायूंमध्ये लॅक्टिक ॲसिड का तयार होते?"
-            ]
-        elif language_key == "Bengali":
-            return [
-                "সালোকসংশ্লেষের রাসায়নিক সমীকরণটি কী?",
-                "সবাত ও অবাত শ্বসনের মধ্যে পার্থক্য কী?",
-                "পাকস্থলীতে হাইড্রোক্লোরিক অ্যাসিডের (HCl) ভূমিকা কী?",
-                "রক্ষী কোষ কীভাবে পত্ররন্ধ্র খোলে ও বন্ধ করে?",
-                "ব্যায়ামের সময় পেশীকোষে ল্যাকটিক অ্যাসিড কেন জমা হয়?"
-            ]
-        elif language_key == "Gujarati":
-            return [
-                "પ્રકાશસંશ્લેષણનું રાસાયણિક સમીકરણ શું છે?",
-                "જારક અને અજારક શ્વસન વચ્ચે શું તફાવત છે?",
-                "જઠરમાં હાઇડ્રોક્લોરિક એસિડ (HCl) નો શો ભાગ છે?",
-                "રક્ષક કોષો વાયુરંધ્રોને કેવી રીતે ખોલે અને બંધ કરે છે?",
-                "કસરત દરમિયાન સ્નાયુઓમાં લેક્ટિક એસિડ કેમ બને છે?"
-            ]
-        elif language_key == "Malayalam":
-            return [
-                "പ്രകാശസംശ്ലേഷണത്തിന്റെ രാസസമവാക്യം എന്താണ്?",
-                "വായു ശ്വസനവും അവായു ശ്വസനവും തമ്മിലുള്ള വ്യത്യാസം എന്താണ്?",
-                "ആമാശയത്തിൽ ഹൈഡ്രോക്ലോറിക് ആസിഡിന്റെ (HCl) പങ്ക് എന്താണ്?",
-                "കാവൽ കോശങ്ങൾ ആസ്യരന്ധ്രങ്ങൾ എങ്ങനെ തുറക്കുകയും അടയ്ക്കുകയും ചെയ്യുന്നു?",
-                "വ്യായാമ വേളയിൽ പേശി കോശങ്ങളിൽ ലാക്റ്റിക് ആസിഡ് അടിഞ്ഞുകൂടുന്നത് എന്തുകൊണ്ട്?"
-            ]
-        else:
-            return [
-                "What is the chemical equation of photosynthesis?",
-                "What is the difference between aerobic and anaerobic respiration?",
-                "What is the role of hydrochloric acid (HCl) in the stomach?",
-                "How do guard cells open and close stomatal pores?",
-                "Why does lactic acid accumulate in muscle cells during exercise?"
-            ]
+def get_curated_prompts(language_key: str = "English") -> List[Dict[str, str]]:
+    """Curated prompt pills with labels and icons matching the reference UI."""
+    if language_key == "Hindi":
+        return [
+            {"label": "प्रकाश संश्लेषण क्या है? 🌱", "query": "प्रकाश संश्लेषण की रासायनिक समीकरण क्या है?"},
+            {"label": "वायवीय और अवायवीय श्वसन 🫀", "query": "वायवीय और अवायवीय श्वसन में क्या अंतर है?"},
+            {"label": "आमाशय में HCl की भूमिका 🧪", "query": "आमाशय में हाइड्रोक्लोरिक अम्ल (HCl) की क्या भूमिका है?"},
+            {"label": "द्वार कोशिकाएं कैसे खुलती हैं? 🍃", "query": "द्वार कोशिकाएं रंध्रों को कैसे खोलती और बंद करती हैं?"},
+            {"label": "मांसपेशियों में ऐंठन और लैक्टिक एसिड ⚡", "query": "व्यायाम के दौरान मांसपेशियों में लैक्टिक एसिड क्यों बनता है?"}
+        ]
+    elif language_key == "Kannada":
+        return [
+            {"label": "ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆ ಎಂದರೇನು? 🌱", "query": "ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆಯ ರಾಸಾಯನಿಕ ಸಮೀಕರಣವೇನು?"},
+            {"label": "ವಾಯುವಿಕ vs ಅವಾಯುವಿಕ ಉಸಿರಾಟ 🫀", "query": "ವಾಯುವಿಕ ಮತ್ತು ಅವಾಯುವಿಕ ಉಸಿರಾಟದ ನಡುವಿನ ವ್ಯತ್ಯಾಸವೇನು?"},
+            {"label": "ಜಠರದಲ್ಲಿ HCl ಆಮ್ಲದ ಪಾತ್ರ 🧪", "query": "ಜಠರದಲ್ಲಿ ಹೈಡ್ರೋಕ್ಲೋರಿಕ್ ಆಮ್ಲದ (HCl) ಪಾತ್ರವೇನು?"},
+            {"label": "ಕಾವಲು ಕೋಶಗಳ ಕಾರ್ಯವಿಧಾನ 🍃", "query": "ಕಾವಲು ಕೋಶಗಳು ಪತ್ರರಂಧ್ರಗಳನ್ನು ಹೇಗೆ ತೆರೆಯುತ್ತವೆ ಮತ್ತು ಮುಚ್ಚುತ್ತವೆ?"},
+            {"label": "ಸ್ನಾಯುಗಳಲ್ಲಿ ಲ್ಯಾಕ್ಟಿಕ್ ಆಮ್ಲ ⚡", "query": "ವ್ಯಾಯಾಮದ ಸಮಯದಲ್ಲಿ ಸ್ನಾಯು ಕೋಶಗಳಲ್ಲಿ ಲ್ಯಾಕ್ಟಿಕ್ ಆಮ್ಲ ಏಕೆ ಸಂಗ್ರಹವಾಗುತ್ತದೆ?"}
+        ]
+    elif language_key == "Telugu":
+        return [
+            {"label": "కిరణజన్య సంయోగక్రియ సమీకరణం 🌱", "query": "కిరణజన్య సంయోగక్రియ రసాయన సమీకరణం ఏమిటి?"},
+            {"label": "వాయు సహిత vs అవాయు శ్వాసక్రియ 🫀", "query": "వాయు సహిత మరియు అవాయు శ్వాసక్రియ మధ్య తేడా ఏమిటి?"},
+            {"label": "జీర్ణాశయంలో HCl పాత్ర 🧪", "query": "జీర్ణాశయంలో హైడ್ರోక్లోరిక్ ఆమ్లం (HCl) పాత్ర ఏమిటి?"},
+            {"label": "రక్షక కణాలు మరియు పత్రరంధ్రాలు 🍃", "query": "రక్షక కణాలు పత్రరంధ్రాలను ఎలా తెరుస్తాయి మరియు మూస్తాయి?"},
+            {"label": "కండరాల నొప్పులు & లాక్టిక్ ఆమ్లం ⚡", "query": "వ్యాయామం చేసేటప్పుడు కండరాలలో లాక్టిక్ ఆమ్లం ఎందుకు పేరుకుపోతుంది?"}
+        ]
     else:
-        extracted = []
-        for c in (chunks or []):
-            text = c.get("text", "").strip()
-            sentences = [s.strip() for s in text.split(".") if len(s.strip().split()) >= 4]
-            if sentences:
-                candidate = sentences[0].replace("\n", " ").strip()
-                if len(candidate) > 55:
-                    candidate = candidate[:55] + "..."
-                q_candidate = f"What does the textbook explain about: {candidate}?"
-                if q_candidate not in extracted:
-                    extracted.append(q_candidate)
-            if len(extracted) == 5:
-                break
-        while len(extracted) < 5:
-            extracted.append(f"Can you explain the main points on Page {len(extracted) + 1}?")
-        return extracted[:5]
+        return [
+            {"label": "What is Photosynthesis? 🌱", "query": "What is the chemical equation of photosynthesis and how does it synthesize glucose?"},
+            {"label": "Aerobic vs Anaerobic Respiration 🫀", "query": "What is the difference between aerobic and anaerobic respiration in terms of ATP?"},
+            {"label": "Role of HCl & Pepsin in Stomach 🧪", "query": "What is the role of hydrochloric acid (HCl) and pepsin secreted in the stomach?"},
+            {"label": "How Guard Cells Open Stomata 🍃", "query": "How do guard cells regulate the opening and closing of stomata in leaves?"},
+            {"label": "Why do Muscles Cramp during Exercise? ⚡", "query": "Why does lactic acid accumulate in muscle cells during vigorous exercise?"}
+        ]
 
 
 # Auto-load the most recent subject if none is active
@@ -750,14 +820,14 @@ if st.session_state.active_subject is None and existing_subjects:
     activate_subject(existing_subjects[0])
 
 # ==========================================
-# SIDEBAR: SETUP & TEXTBOOK MANAGEMENT
+# SIDEBAR CONTROLS
 # ==========================================
 with st.sidebar:
     st.markdown(
         """
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
             <span class="nav-dot"></span>
-            <span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 1.45rem; color: #FFFFFF; font-weight: 500;">
+            <span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 1.5rem; color: #FFFFFF; font-weight: 500;">
                 VidyaVaani Setup
             </span>
         </div>
@@ -781,34 +851,8 @@ with st.sidebar:
     
     st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
 
-    # Demo Mode Checkbox
-    demo_mode = st.checkbox(
-        "🎯 Demo mode",
-        value=st.session_state.get("demo_mode", False),
-        help="Preloads sample questions for the current subject as one-click buttons."
-    )
-    st.session_state.demo_mode = demo_mode
-
-    if demo_mode:
-        st.markdown("<p style='font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; color:#9CA3AF; margin-top:8px;'>Sample Prompts</p>", unsafe_allow_html=True)
-        curr_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "General"
-        demo_qs_sb = get_demo_questions(curr_subj_name, st.session_state.indexed_chunks, language_choice)
-        for d_i, d_q in enumerate(demo_qs_sb):
-            if st.button(f"👉 {d_q}", key=f"sb_demo_btn_{d_i}", use_container_width=True):
-                st.session_state.demo_query_triggered = d_q
-                st.rerun()
-
-    st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
-
     # 3. Textbook Upload & Indexing
-    st.markdown(
-        """
-        <p style='font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:#9CA3AF;'>
-            Textbook Chapter
-        </p>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("<p style='font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:#9CA3AF;'>Textbook Chapter</p>", unsafe_allow_html=True)
     upload_subject_name = st.text_input("Subject / Chapter Name", placeholder="e.g. Science - Life Processes")
     uploaded_file = st.file_uploader("Upload PDF File", type=["pdf"], help="Select a textbook chapter PDF")
 
@@ -944,89 +988,11 @@ st.markdown(
 )
 
 # ==========================================
-# HERO SECTION (Synapse Editorial)
-# ==========================================
-active_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "No Chapter Loaded"
-
-st.markdown(
-    f"""
-    <div class="hero-container">
-        <h1 class="hero-heading">
-            Voices of Learning, <span class="shimmer-text">Grounded</span> in Knowledge
-        </h1>
-        <p class="hero-subtext">
-            A high-fidelity multilingual voice tutor engineered for educational equity. Strict textbook RAG, real-time regional neural speech, and zero hallucinations.
-        </p>
-        <div class="hero-badges-row">
-            <span class="synapse-badge">👤 {st.session_state.student_name}</span>
-            <span class="synapse-badge">🌐 {current_lang['label']}</span>
-            <span class="synapse-badge">📚 {active_subj_name}</span>
-            <span class="synapse-badge">⚡ Gemini 3.8 Flash</span>
-            <span class="synapse-badge">🗣️ Neural Edge-TTS</span>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# ==========================================
-# INFINITE METRICS TICKER
-# ==========================================
-st.markdown(
-    """
-    <div class="ticker-wrapper">
-        <div class="ticker-track">
-            <div class="ticker-item"><span class="ticker-label">REASONING:</span><span class="ticker-value ticker-accent-violet">GEMINI 3.8 FLASH</span></div>
-            <div class="ticker-item"><span class="ticker-label">RETRIEVAL:</span><span class="ticker-value ticker-accent-cyan">FAISS DENSE COSINE</span></div>
-            <div class="ticker-item"><span class="ticker-label">EMBEDDINGS:</span><span class="ticker-value">MULTILINGUAL-E5</span></div>
-            <div class="ticker-item"><span class="ticker-label">TTS ENGINE:</span><span class="ticker-value ticker-accent-violet">AZURE NEURAL (EDGE)</span></div>
-            <div class="ticker-item"><span class="ticker-label">LANGUAGES:</span><span class="ticker-value ticker-accent-emerald">9 REGIONAL INDIC</span></div>
-            <div class="ticker-item"><span class="ticker-label">ACCURACY:</span><span class="ticker-value">MANDATORY CITATIONS</span></div>
-            <div class="ticker-item"><span class="ticker-label">STATUS:</span><span class="ticker-value ticker-accent-emerald">ACTIVE & GROUNDED</span></div>
-            <!-- Duplicate for seamless infinite loop -->
-            <div class="ticker-item"><span class="ticker-label">REASONING:</span><span class="ticker-value ticker-accent-violet">GEMINI 3.8 FLASH</span></div>
-            <div class="ticker-item"><span class="ticker-label">RETRIEVAL:</span><span class="ticker-value ticker-accent-cyan">FAISS DENSE COSINE</span></div>
-            <div class="ticker-item"><span class="ticker-label">EMBEDDINGS:</span><span class="ticker-value">MULTILINGUAL-E5</span></div>
-            <div class="ticker-item"><span class="ticker-label">TTS ENGINE:</span><span class="ticker-value ticker-accent-violet">AZURE NEURAL (EDGE)</span></div>
-            <div class="ticker-item"><span class="ticker-label">LANGUAGES:</span><span class="ticker-value ticker-accent-emerald">9 REGIONAL INDIC</span></div>
-            <div class="ticker-item"><span class="ticker-label">ACCURACY:</span><span class="ticker-value">MANDATORY CITATIONS</span></div>
-            <div class="ticker-item"><span class="ticker-label">STATUS:</span><span class="ticker-value ticker-accent-emerald">ACTIVE & GROUNDED</span></div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# ==========================================
-# 3-COLUMN INTERACTIVE FEATURE CARDS
-# ==========================================
-st.markdown(
-    """
-    <div class="synapse-feature-grid">
-        <div class="synapse-card">
-            <div class="card-icon-box">🎙️</div>
-            <div class="card-title">Regional Neural Voice</div>
-            <div class="card-body">Natural speech synthesis across 9 Indian languages. Every concept is spoken aloud in warm, native dialect accents.</div>
-        </div>
-        <div class="synapse-card">
-            <div class="card-icon-box">🛡️</div>
-            <div class="card-title">Strict Grounding & Refusal</div>
-            <div class="card-body">Zero external hallucination. All answers cite verified textbook pages, and off-topic questions trigger polite translated refusals.</div>
-        </div>
-        <div class="synapse-card">
-            <div class="card-icon-box">💡</div>
-            <div class="card-title">Scaffolding for Learners</div>
-            <div class="card-body">One-click 'Explain Simpler' rewrites jargon into gentle analogies, while 'Give an Example' connects concepts to Indian daily life.</div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# ==========================================
 # TRANSLATED TABS
 # ==========================================
+active_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "No Chapter Loaded"
 ui = current_lang["ui"]
+
 tab_ask, tab_quiz, tab_subjects, tab_analytics = st.tabs([
     ui["ask_tab"],
     ui["quiz_tab"],
@@ -1035,121 +1001,139 @@ tab_ask, tab_quiz, tab_subjects, tab_analytics = st.tabs([
 ])
 
 # ==============================================================================
-# TAB 1: 🗣️ ASK TUTOR
+# TAB 1: 🗣️ ASK TUTOR (SUPERDESIGN CHAT INTERACTION & SYNAPSE PREVIEW)
 # ==============================================================================
 with tab_ask:
-    st.markdown(
-        f"""
-        <div style="margin-bottom: 16px;">
-            <div style="font-family:'Instrument Serif', Georgia, serif; font-size: 1.8rem; color:#FFFFFF;">
-                Ask your question in {current_lang['label']}
-            </div>
-            <div style="color:#9CA3AF; font-size:0.9rem;">
-                Speak or type. VidyaVaani answers with spoken regional audio and textbook citations.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    col_chat_widget, col_chat_display = st.columns([1, 1.25], gap="large")
 
-    # Greeting Banner
-    st.markdown(
-        f"""
-        <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 14px; padding: 12px 18px; margin-bottom: 16px; color: #E9D5FF; font-size: 0.95rem;">
-            💬 {current_lang['greeting']}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    # Determine Query triggers
+    triggered_query = None
+    action_type = "normal"
+    pill_selected_query = None
 
-    # Voice Input (if mic recorder available)
-    voice_query_text = None
-    if speech_to_text is not None:
-        col_mic, col_mic_info = st.columns([1, 4])
-        with col_mic:
-            voice_query_text = speech_to_text(
-                language=current_lang.get("bcp47", "en-IN"),
-                start_prompt="🎙️ Speak Question",
-                stop_prompt="⏹️ Stop Recording",
-                key="synapse_mic_recorder"
-            )
-        with col_mic_info:
-            if voice_query_text:
-                st.success(f"Recognized Voice: *\"{voice_query_text}\"*")
-
-    # Text Query Form
-    with st.form("ask_form", clear_on_submit=False):
-        col_in, col_btn = st.columns([4, 1])
-        with col_in:
-            user_text = st.text_input(
-                "Question",
-                value=voice_query_text or "",
-                placeholder=ui["ask_placeholder"],
-                label_visibility="collapsed"
-            )
-        with col_btn:
-            ask_submitted = st.form_submit_button(ui["ask_btn"], type="primary", use_container_width=True)
-
-    # Demo Mode One-Click Questions
-    tab_demo_selected = None
-    if st.session_state.get("demo_mode", False):
-        curr_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "General"
-        demo_qs_tab = get_demo_questions(curr_subj_name, st.session_state.indexed_chunks, language_choice)
+    # LEFT COLUMN: SUPERDESIGN CHAT ASSISTANT CARD (EXACT REFERENCE UI)
+    with col_chat_widget:
         st.markdown(
-            """
-            <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); padding: 10px 16px; border-radius: 12px; margin: 10px 0;">
-                <span style="color: #22D3EE; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.1em;">
-                    ⚡ One-Click Presentation Prompts
-                </span>
+            f"""
+            <div class="superdesign-card">
+                <div class="superdesign-header">
+                    <div class="superdesign-title-box">
+                        <div class="superdesign-grid-icon">
+                            <span style="font-size: 1.1rem;">❖</span>
+                        </div>
+                        <div>
+                            <div class="superdesign-title">SuperDesign • VidyaVaani</div>
+                            <div class="superdesign-subtitle">The tutor can also help • 9 Languages</div>
+                        </div>
+                    </div>
+                    <div class="superdesign-controls">
+                        <span>•••</span>
+                        <span>✕</span>
+                    </div>
+                </div>
+                
+                <div class="superdesign-bubble">
+                    {current_lang['greeting']} How can I help you today? Ask any question from your textbook chapter or select an option below:
+                </div>
+                <div class="superdesign-bubble-meta">
+                    SuperDesign • Just now
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
-        d_c1, d_c2 = st.columns(2)
-        for d_i, d_q in enumerate(demo_qs_tab):
-            t_col = d_c1 if d_i % 2 == 0 else d_c2
-            with t_col:
-                if st.button(f"✨ {d_q}", key=f"tab_demo_btn_{d_i}", use_container_width=True):
-                    tab_demo_selected = d_q
 
-    # Pedagogical Scaffolding Quick Action Buttons
-    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
-    with col_s1:
-        btn_simpler = st.button(ui["simpler_btn"], use_container_width=True)
-    with col_s2:
-        btn_example = st.button(ui["example_btn"], use_container_width=True)
-    with col_s3:
-        btn_sample_1 = st.button("🌱 What is Photosynthesis?", use_container_width=True)
-    with col_s4:
-        btn_sample_2 = st.button("🫀 Respiration & Energy", use_container_width=True)
+        # Floating Option Pills (Matched to the Reference Screenshot)
+        # In the screenshot:
+        # Quick start Guide
+        # I have a question ❓
+        # I found a bug 🐛
+        # I want to ask for a new feature 🌟
+        # Join our discord channel
+        # Plus domain-specific learning actions:
+        if st.button("Quick start Guide 🧭", key="pill_quickstart", use_container_width=False):
+            triggered_query = f"Give me a clear, 3-bullet conceptual overview of {active_subj_name} for a school learner."
 
-    # Determine Query
-    triggered_query = None
-    action_type = "normal"
+        if st.button("I have a question ❓", key="pill_question_prompt", use_container_width=False):
+            triggered_query = f"What are the top 3 most important questions asked in board exams from {active_subj_name}?"
 
-    if tab_demo_selected:
-        triggered_query = tab_demo_selected
+        btn_simpler = st.button(f"💡 {ui['simpler_btn']}", key="pill_simpler", use_container_width=False)
+        btn_example = st.button(f"🔍 {ui['example_btn']} 🌟", key="pill_example", use_container_width=False)
+
+        # Chapter-specific prompt pills
+        curated_pills = get_curated_prompts(language_choice)
+        for idx, item in enumerate(curated_pills[:3]):
+            if st.button(item["label"], key=f"curated_pill_{idx}", use_container_width=False):
+                pill_selected_query = item["query"]
+
+        if st.button("Join student community 💬", key="pill_community", use_container_width=False):
+            st.session_state.status_message = "Joined VidyaVaani Learner Circle! Share questions with classmates and track progress in Teacher Analytics."
+
+        if st.button("Practice Quiz (5 MCQs) 📝", key="pill_quiz_shortcut", use_container_width=False):
+            st.session_state.demo_query_triggered = f"Generate 5 high-yield practice MCQs based on {active_subj_name}."
+
+        st.markdown("<div style='margin-top: 14px;'></div>", unsafe_allow_html=True)
+
+        # Optional Voice Recorder
+        voice_query_text = None
+        if speech_to_text is not None:
+            col_m_rec, col_m_lbl = st.columns([1, 3])
+            with col_m_rec:
+                voice_query_text = speech_to_text(
+                    language=current_lang.get("bcp47", "en-IN"),
+                    start_prompt="🎙️ Speak",
+                    stop_prompt="⏹️ Stop",
+                    key="synapse_mic_recorder"
+                )
+            with col_m_lbl:
+                if voice_query_text:
+                    st.caption(f"🎙️ *\"{voice_query_text}\"*")
+
+        # Micro Meta Bar
+        st.markdown(
+            f"""
+            <div class="dock-meta-icons">
+                <span class="dock-meta-item">📎 {active_subj_name[:18]}...</span>
+                <span class="dock-meta-item">😊 Learner</span>
+                <span class="dock-meta-item">🎙️ {current_lang['label']}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Sleek Chat Input Dock with Circular Send Button
+        with st.form("ask_form", clear_on_submit=False):
+            col_dock_input, col_dock_btn = st.columns([5, 1])
+            with col_dock_input:
+                user_text = st.text_input(
+                    "Question",
+                    value=voice_query_text or "",
+                    placeholder="Ask a question...",
+                    label_visibility="collapsed"
+                )
+            with col_dock_btn:
+                ask_submitted = st.form_submit_button("↑", type="primary", use_container_width=True)
+
+    # Resolve Query
+    if pill_selected_query:
+        triggered_query = pill_selected_query
     elif st.session_state.get("demo_query_triggered"):
         triggered_query = st.session_state.pop("demo_query_triggered")
     elif ask_submitted and user_text.strip():
         triggered_query = user_text.strip()
     elif btn_simpler:
         action_type = "simpler"
-        triggered_query = user_text.strip() or st.session_state.last_query or "Explain the main topic of this chapter"
+        triggered_query = user_text.strip() or st.session_state.last_query or "Explain the main topic of this chapter in simple terms"
     elif btn_example:
         action_type = "example"
-        triggered_query = user_text.strip() or st.session_state.last_query or "Give a real-world example of this concept"
-    elif btn_sample_1:
-        triggered_query = "What is photosynthesis and what are its steps?"
-    elif btn_sample_2:
-        triggered_query = "What is the difference between aerobic and anaerobic respiration?"
+        triggered_query = user_text.strip() or st.session_state.last_query or "Give a real-world everyday example of this concept"
 
-    # Execute RAG Pipeline
+    # Execute RAG Pipeline with Gemini 3.8 Flash
     if triggered_query:
         if not st.session_state.indexed_chunks or st.session_state.faiss_index is None:
             st.error(ui["no_subject_alert"])
         else:
-            with st.spinner("Searching textbook vector index and reasoning with Gemini..."):
+            with st.spinner("Searching textbook vector index and reasoning with Gemini 3.8 Flash..."):
                 emb_model = load_embedding_model()
                 top_chunks, top_score = retrieval.search_similar_chunks(
                     query=triggered_query,
@@ -1187,59 +1171,177 @@ with tab_ask:
                 st.session_state.last_sources = top_chunks
                 st.session_state.last_audio_path = audio_file
 
-    # Render High-Tech Dark IDE-Style Tutor Response
-    if st.session_state.last_response:
-        st.markdown(
-            f"""
-            <div class="ide-window">
-                <div class="ide-toolbar">
-                    <div class="ide-controls">
-                        <span class="control-dot dot-red"></span>
-                        <span class="control-dot dot-yellow"></span>
-                        <span class="control-dot dot-green"></span>
-                    </div>
-                    <div class="ide-filename">vidyavaani.response • {current_lang['label']}</div>
-                    <div class="ide-status">
-                        <span class="pulse-dot"></span>
-                        <span>GROUNDED</span>
-                    </div>
-                </div>
-                <div class="ide-content">
-                    {st.session_state.last_response.replace(chr(10), '<br>')}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # Audio Player with Ambient Frame
-        if st.session_state.last_audio_path and os.path.exists(st.session_state.last_audio_path):
+    # RIGHT COLUMN: SYNAPSE PREVIEW & ACTIVE TUTOR RESPONSE CONSOLE
+    with col_chat_display:
+        if st.session_state.last_response:
+            # Active Response in IDE Window
             st.markdown(
                 f"""
-                <div style="display:flex; align-items:center; gap:8px; margin: 8px 0;">
-                    <span style="font-family:'Instrument Serif', Georgia, serif; font-size:1.25rem; color:#A78BFA;">🎙️ {ui['audio_label']}</span>
+                <div class="ide-window">
+                    <div class="ide-toolbar">
+                        <div class="ide-controls">
+                            <span class="control-dot dot-red"></span>
+                            <span class="control-dot dot-yellow"></span>
+                            <span class="control-dot dot-green"></span>
+                        </div>
+                        <div class="ide-filename">vidyavaani.response • {current_lang['label']}</div>
+                        <div style="display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:#10B981;">
+                            <span class="pulse-dot"></span>
+                            <span>GROUNDED IN NCERT</span>
+                        </div>
+                    </div>
+                    <div class="ide-content">
+                        <div style="font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:#A78BFA; margin-bottom:12px;">
+                            PROMPT: "{st.session_state.last_query}"
+                        </div>
+                        {st.session_state.last_response.replace(chr(10), '<br>')}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-            with open(st.session_state.last_audio_path, "rb") as af:
-                st.audio(af.read(), format="audio/mp3")
 
-        # Grounding Passages Expander
-        with st.expander(ui["sources_title"], expanded=False):
-            if st.session_state.last_sources:
-                for idx, src in enumerate(st.session_state.last_sources):
-                    st.markdown(
-                        f"""
-                        <div class="synapse-passage">
-                            <div class="synapse-passage-header">PASSAGE #{idx+1} — [PAGE {src['page']}] • SIMILARITY: {src.get('score', 0):.3f}</div>
-                            <div style="color: #D1D5DB; font-size: 0.9rem; line-height: 1.5;">"{src['text']}"</div>
+            # Spoken Neural Audio Player
+            if st.session_state.last_audio_path and os.path.exists(st.session_state.last_audio_path):
+                st.markdown(
+                    f"""
+                    <div style="display:flex; align-items:center; gap:8px; margin: 12px 0 6px 0;">
+                        <span style="font-family:'Instrument Serif', Georgia, serif; font-size:1.3rem; color:#C4B5FD;">🎙️ {ui['audio_label']}</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                with open(st.session_state.last_audio_path, "rb") as af:
+                    st.audio(af.read(), format="audio/mp3")
+
+            # Grounding Passages Expander
+            with st.expander(ui["sources_title"], expanded=False):
+                if st.session_state.last_sources:
+                    for idx, src in enumerate(st.session_state.last_sources):
+                        st.markdown(
+                            f"""
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px;">
+                                <div style="font-family:'JetBrains Mono', monospace; font-size:0.76rem; color:#A78BFA; font-weight:600; margin-bottom:6px;">
+                                    PASSAGE #{idx+1} — [PAGE {src['page']}] • SIMILARITY: {src.get('score', 0):.3f}
+                                </div>
+                                <div style="color: #D1D5DB; font-size: 0.9rem; line-height: 1.5;">"{src['text']}"</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                else:
+                    st.write("No matching passages found.")
+        else:
+            # Synapse Hero Preview (Matched to Right Side of Screenshot 1)
+            st.markdown(
+                f"""
+                <div class="hero-container" style="text-align: left; padding: 16px 20px 24px 20px; border: 1px solid rgba(255,255,255,0.06); border-radius: 26px; background: rgba(12, 12, 14, 0.5); backdrop-filter: blur(16px);">
+                    <div class="status-chip" style="margin-bottom: 20px;">
+                        <span class="nav-dot"></span>
+                        <span>Mainnet Beta Live • Gemini 3.8 Flash</span>
+                    </div>
+                    <h1 class="hero-heading" style="font-size: 3.6rem; margin-bottom: 16px;">
+                        Voices of Learning,<br><span class="shimmer-text">Grounded.</span>
+                    </h1>
+                    <p class="hero-subtext" style="margin: 0 0 24px 0; font-size: 1.05rem; line-height: 1.6; max-width: 580px;">
+                        The first cognitive voice layer for educational equity. Synapse unifies textbook identity, neural execution, and multilingual settlement into a single neural fabric.
+                    </p>
+                    <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 28px;">
+                        <div style="background: #FFFFFF; color: #030303; font-weight: 700; font-size: 0.88rem; padding: 10px 22px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 8px;">
+                            Start Learning →
                         </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-            else:
-                st.write("No matching passages found.")
+                        <div style="color: #D1D5DB; font-size: 0.88rem; font-weight: 500; padding: 10px 16px;">
+                            Read Chapter Specs 📖
+                        </div>
+                    </div>
+                    <div class="hero-badges-row" style="justify-content: flex-start;">
+                        <span class="synapse-badge">👤 {st.session_state.student_name}</span>
+                        <span class="synapse-badge">🌐 {current_lang['label']}</span>
+                        <span class="synapse-badge">📚 {active_subj_name}</span>
+                        <span class="synapse-badge">⚡ Sub-500ms TTS</span>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+    # ==========================================
+    # INFINITE MARQUEE TICKER (Spanning Full Width)
+    # ==========================================
+    st.markdown(
+        """
+        <div class="ticker-wrapper" style="margin-top: 36px;">
+            <div class="ticker-track">
+                <div class="ticker-item"><span class="ticker-label">REASONING:</span><span class="ticker-value ticker-accent-violet">GEMINI 3.8 FLASH</span></div>
+                <div class="ticker-item"><span class="ticker-label">RETRIEVAL:</span><span class="ticker-value ticker-accent-cyan">FAISS DENSE COSINE</span></div>
+                <div class="ticker-item"><span class="ticker-label">EMBEDDINGS:</span><span class="ticker-value">MULTILINGUAL-E5</span></div>
+                <div class="ticker-item"><span class="ticker-label">TTS ENGINE:</span><span class="ticker-value ticker-accent-violet">AZURE NEURAL (EDGE)</span></div>
+                <div class="ticker-item"><span class="ticker-label">LANGUAGES:</span><span class="ticker-value ticker-accent-emerald">9 REGIONAL INDIC</span></div>
+                <div class="ticker-item"><span class="ticker-label">ACCURACY:</span><span class="ticker-value">MANDATORY CITATIONS</span></div>
+                <div class="ticker-item"><span class="ticker-label">STATUS:</span><span class="ticker-value ticker-accent-emerald">ACTIVE & GROUNDED</span></div>
+                <!-- Loop -->
+                <div class="ticker-item"><span class="ticker-label">REASONING:</span><span class="ticker-value ticker-accent-violet">GEMINI 3.8 FLASH</span></div>
+                <div class="ticker-item"><span class="ticker-label">RETRIEVAL:</span><span class="ticker-value ticker-accent-cyan">FAISS DENSE COSINE</span></div>
+                <div class="ticker-item"><span class="ticker-label">EMBEDDINGS:</span><span class="ticker-value">MULTILINGUAL-E5</span></div>
+                <div class="ticker-item"><span class="ticker-label">TTS ENGINE:</span><span class="ticker-value ticker-accent-violet">AZURE NEURAL (EDGE)</span></div>
+                <div class="ticker-item"><span class="ticker-label">LANGUAGES:</span><span class="ticker-value ticker-accent-emerald">9 REGIONAL INDIC</span></div>
+                <div class="ticker-item"><span class="ticker-label">ACCURACY:</span><span class="ticker-value">MANDATORY CITATIONS</span></div>
+                <div class="ticker-item"><span class="ticker-label">STATUS:</span><span class="ticker-value ticker-accent-emerald">ACTIVE & GROUNDED</span></div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # ==========================================
+    # 6-CARD ARCHITECTURE FEATURE GRID
+    # (Matched to Second Reference Screenshot)
+    # ==========================================
+    st.markdown(
+        """
+        <div style="text-align: center; margin-top: 36px; margin-bottom: 12px;">
+            <div style="font-family: 'Instrument Serif', Georgia, serif; font-size: 2.6rem; color: #FFFFFF; font-weight: 400; letter-spacing: -0.02em;">
+                Constructed for scale.
+            </div>
+            <div style="color: #9CA3AF; font-size: 0.95rem; font-weight: 300; max-width: 600px; margin: 6px auto 0 auto;">
+                Built on a novel consensus mechanism that mimics neural pathways, enabling instant regional grounding at zero marginal cost.
+            </div>
+        </div>
+        <div class="synapse-feature-grid-6">
+            <div class="feature-card-synapse">
+                <div class="feature-icon-box">🛡️</div>
+                <div class="feature-title">Strict Grounding</div>
+                <div class="feature-desc">Your biometric textbook boundary is your private key. Recover every factual claim with exact page citations.</div>
+            </div>
+            <div class="feature-card-synapse">
+                <div class="feature-icon-box">⚡</div>
+                <div class="feature-title">Instant Finality</div>
+                <div class="feature-desc">FAISS vector cosine retrieval settles in 180ms. No hallucination, no front-running, just pure grounded execution speed.</div>
+            </div>
+            <div class="feature-card-synapse">
+                <div class="feature-icon-box">🔒</div>
+                <div class="feature-title">Zero Hallucination</div>
+                <div class="feature-desc">Verify knowledge without guessing. Institutional-grade textbook factual grounding by default.</div>
+            </div>
+            <div class="feature-card-synapse">
+                <div class="feature-icon-box">🧠</div>
+                <div class="feature-title">Neural Consensus</div>
+                <div class="feature-desc">A deep learning reasoning fabric powered by Gemini 3.8 Flash that scales as classroom curiosity increases.</div>
+            </div>
+            <div class="feature-card-synapse">
+                <div class="feature-icon-box">🌐</div>
+                <div class="feature-title">9 Indic Dialects</div>
+                <div class="feature-desc">Access global knowledge in any regional tongue. VidyaVaani acts as the universal spoken translator.</div>
+            </div>
+            <div class="feature-card-synapse">
+                <div class="feature-icon-box">📊</div>
+                <div class="feature-title">Self-Auditing Metrics</div>
+                <div class="feature-desc">The SQLite engine automatically balances inquiry logs, quiz mastery, and comprehension analytics.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # ==============================================================================
 # TAB 2: 📝 PRACTICE QUIZ
