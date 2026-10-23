@@ -109,7 +109,7 @@ def _invoke_llm_for_quiz(prompt: str, gemini_api_key: Optional[str] = None, groq
     if g_key and genai is not None:
         try:
             client = genai.Client(api_key=g_key)
-            models = [GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+            models = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"]
             for m in dict.fromkeys(models):
                 try:
                     res = client.models.generate_content(model=m, contents=prompt)

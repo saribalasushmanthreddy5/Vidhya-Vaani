@@ -117,7 +117,7 @@ def generate_tutor_response(
         try:
             client = genai.Client(api_key=g_key)
             # Try specified model, with fallback candidate list if model name differs
-            models_to_try = [GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+            models_to_try = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"]
             for model_name in dict.fromkeys(models_to_try):
                 try:
                     response = client.models.generate_content(

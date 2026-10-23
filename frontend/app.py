@@ -1,14 +1,12 @@
 """
 VidyaVaani (ವಿಧ್ಯಾವಾಣಿ / विद्यावाणी): Voice-First Multilingual AI Tutor
-Frontend UI (Streamlit Application)
-- Clean student-first interface with NO exposed API keys or backend credentials
-- 9 Regional Languages (English, Hindi, Kannada, Telugu, Tamil, Malayalam, Marathi, Bengali, Gujarati)
-- My Subjects Library with SQLite persistence, auto-save, SHA-256 deduplication, re-indexing, and deletion
-- Word-window chunking RAG with sentence-transformers multilingual-e5-small and FAISS cosine search
-- Google-GenAI primary + Groq fallback LLM with strict grounding and NOT_FOUND refusal handling
-- Edge-TTS neural speech with gTTS fallback
-- 5-question dynamic practice quiz with defensive parsing and grading
-- Teacher / Admin learning analytics dashboard
+Synapse Design System Interface:
+- Vantablack (#030303) foundation with ambient floating violet & cyan glowing orbs
+- Instrument Serif typography for high-impact editorial headings
+- Crisp Inter typography & JetBrains Mono for metrics and UI
+- Floating Glass Navigation Pill, Infinite Marquee Metrics Ticker, and 3-Column Interactive Cards
+- High-Tech Dark IDE-Style Tutor Response block with terminal window controls
+- Zero API keys exposed on frontend; all backend logic and AI credentials safely server-side
 """
 
 import os
@@ -56,91 +54,532 @@ except ImportError:
 # PAGE CONFIGURATION
 # ==========================================
 st.set_page_config(
-    page_title="VidyaVaani | Voice-First AI Tutor",
+    page_title="VidyaVaani • Synapse Voice AI Tutor",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom High-Impact CSS Styling
+# ==========================================
+# SYNAPSE DESIGN SYSTEM CSS INJECTION
+# ==========================================
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Gujarati:wght@400;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans Kannada', 'Noto Sans Telugu', 'Noto Sans Tamil', 'Noto Sans Malayalam', 'Noto Sans Bengali', 'Noto Sans Gujarati', sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+Bengali:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&display=swap');
+
+    /* Global Reset & Vantablack Base */
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: #030303 !important;
+        color: #EDEDED !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     
-    /* Hero Title Card */
-    .hero-card {
-        background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
-        padding: 24px 32px;
-        border-radius: 18px;
-        color: white;
-        margin-bottom: 24px;
-        box-shadow: 0 10px 25px -5px rgba(67, 56, 202, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    [data-testid="stSidebar"] {
+        background-color: #060606 !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
     }
-    .hero-card h1 {
-        color: #FFFFFF !important;
-        font-weight: 800;
-        font-size: 2.1rem;
-        margin-bottom: 6px;
-        letter-spacing: -0.02em;
+
+    /* Ambient Floating Orbs */
+    .synapse-orb-violet {
+        position: fixed;
+        width: 650px;
+        height: 650px;
+        top: -120px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.22) 0%, rgba(139, 92, 246, 0) 70%);
+        filter: blur(85px);
+        pointer-events: none;
+        z-index: 0;
+        animation: floatOrb 12s ease-in-out infinite alternate;
     }
-    .hero-card p {
-        color: #E0E7FF;
-        font-size: 1.02rem;
-        margin-bottom: 0;
-        opacity: 0.95;
+    .synapse-orb-cyan {
+        position: fixed;
+        width: 550px;
+        height: 550px;
+        top: 380px;
+        left: -120px;
+        background: radial-gradient(circle, rgba(6, 182, 212, 0.14) 0%, rgba(6, 182, 212, 0) 70%);
+        filter: blur(95px);
+        pointer-events: none;
+        z-index: 0;
+        animation: floatOrb 15s ease-in-out infinite alternate-reverse;
     }
-    .hero-badges {
+    @keyframes floatOrb {
+        0% { transform: translateY(0px) scale(1); }
+        100% { transform: translateY(-24px) scale(1.05); }
+    }
+
+    /* Typography Classes */
+    .font-serif {
+        font-family: 'Instrument Serif', Georgia, serif !important;
+        letter-spacing: -0.025em;
+    }
+    .font-mono {
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+
+    /* Text Shimmer Animation */
+    .shimmer-text {
+        background: linear-gradient(90deg, #A78BFA 0%, #FFFFFF 40%, #FFFFFF 60%, #22D3EE 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: textShimmer 4s linear infinite;
+        font-style: italic;
+    }
+    @keyframes textShimmer {
+        0% { background-position: 0% center; }
+        100% { background-position: 200% center; }
+    }
+
+    /* Fixed Navigation Pill */
+    .nav-pill-container {
         display: flex;
-        gap: 10px;
-        margin-top: 14px;
-        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 28px;
     }
-    .badge-pill {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(8px);
-        padding: 4px 14px;
-        border-radius: 20px;
-        font-size: 0.82rem;
+    .nav-pill {
+        width: 100%;
+        max-width: 672px;
+        background: rgba(10, 10, 10, 0.72);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+        padding: 8px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8), 0 0 20px -10px rgba(139, 92, 246, 0.3);
+        z-index: 10;
+    }
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .nav-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+        box-shadow: 0 0 8px #8B5CF6;
+    }
+    .nav-title {
+        font-family: 'Instrument Serif', Georgia, serif;
+        font-size: 1.25rem;
+        color: #FFFFFF;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+    }
+    .nav-links {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #F8FAFC;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #9CA3AF;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
     }
-    
-    /* Response Bubble */
-    .tutor-bubble {
-        background: #F8FAFC;
-        border-left: 5px solid #4F46E5;
-        border-radius: 12px;
-        padding: 20px 24px;
-        margin-top: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        border-top: 1px solid #E2E8F0;
-        border-right: 1px solid #E2E8F0;
-        border-bottom: 1px solid #E2E8F0;
-    }
-    
-    /* Passage Card */
-    .passage-card {
-        background: #F1F5F9;
-        border-radius: 10px;
-        padding: 12px 16px;
-        margin-bottom: 10px;
-        border: 1px solid #CBD5E1;
-        font-size: 0.92rem;
-    }
-    .passage-page {
+    .nav-cta {
+        background: #FFFFFF;
+        color: #030303;
+        font-size: 0.78rem;
         font-weight: 700;
-        color: #4338CA;
+        padding: 5px 14px;
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        letter-spacing: 0.02em;
+        transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .nav-cta:hover {
+        transform: scale(1.04);
+    }
+
+    /* Hero Section */
+    .hero-container {
+        text-align: center;
+        padding: 36px 16px 28px 16px;
+        position: relative;
+        z-index: 1;
+    }
+    .hero-heading {
+        font-family: 'Instrument Serif', Georgia, serif;
+        font-size: 3.6rem;
+        line-height: 1.04;
+        font-weight: 400;
+        color: #FFFFFF;
+        margin-bottom: 14px;
+        letter-spacing: -0.035em;
+    }
+    .hero-subtext {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.05rem;
+        color: #9CA3AF;
+        max-width: 680px;
+        margin: 0 auto 24px auto;
+        line-height: 1.55;
+        font-weight: 300;
+    }
+    .hero-badges-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .synapse-badge {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 9999px;
+        padding: 6px 16px;
+        font-size: 0.82rem;
+        color: #D1D5DB;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .synapse-badge:hover {
+        border-color: rgba(139, 92, 246, 0.4);
+        box-shadow: 0 0 15px -5px rgba(139, 92, 246, 0.4);
+        color: #FFFFFF;
+    }
+
+    /* Infinite Metrics Marquee Ticker */
+    .ticker-wrapper {
+        width: 100%;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.45);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin: 24px 0 32px 0;
+        padding: 14px 0;
+        position: relative;
+    }
+    .ticker-track {
+        display: flex;
+        width: max-content;
+        animation: tickerMarquee 38s linear infinite;
+        gap: 36px;
+    }
+    @keyframes tickerMarquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .ticker-label {
+        font-size: 0.65rem;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+    }
+    .ticker-value {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #F3F4F6;
+    }
+    .ticker-accent-violet { color: #A78BFA; }
+    .ticker-accent-cyan { color: #22D3EE; }
+    .ticker-accent-emerald { color: #34D399; }
+
+    /* Interactive Feature Cards (3-column) */
+    .synapse-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+    @media (max-width: 900px) {
+        .synapse-feature-grid { grid-template-columns: 1fr; }
+    }
+    .synapse-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 24px;
+        padding: 26px 28px;
+        transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.35s, box-shadow 0.35s;
+        position: relative;
+        overflow: hidden;
+    }
+    .synapse-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(139, 92, 246, 0.4);
+        box-shadow: 0 0 25px -8px rgba(139, 92, 246, 0.35);
+        background: rgba(255, 255, 255, 0.035);
+    }
+    .card-icon-box {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: rgba(139, 92, 246, 0.12);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+        transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .synapse-card:hover .card-icon-box {
+        transform: scale(1.1) rotate(-4deg);
+    }
+    .card-title {
+        font-family: 'Instrument Serif', Georgia, serif;
+        font-size: 1.45rem;
+        color: #FFFFFF;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    .card-body {
+        color: #9CA3AF;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        font-weight: 300;
+    }
+
+    /* Dark IDE-Style Tutor Response Block */
+    .ide-window {
+        background: rgba(8, 8, 8, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 20px 0;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.9), 0 0 25px -10px rgba(139, 92, 246, 0.25);
+    }
+    .ide-toolbar {
+        background: rgba(16, 16, 16, 0.95);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .ide-controls {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+    }
+    .control-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        opacity: 0.75;
+    }
+    .dot-red { background: #EF4444; }
+    .dot-yellow { background: #EAB308; }
+    .dot-green { background: #10B981; }
+    .ide-filename {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #9CA3AF;
+        letter-spacing: 0.04em;
+    }
+    .ide-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        color: #10B981;
+    }
+    .pulse-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10B981;
+        box-shadow: 0 0 8px #10B981;
+        animation: pulseAnimation 2s infinite;
+    }
+    @keyframes pulseAnimation {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .ide-content {
+        padding: 24px 28px;
+        font-family: 'Inter', sans-serif;
+        font-size: 1.02rem;
+        line-height: 1.68;
+        color: #F3F4F6;
+    }
+    .ide-citation {
+        display: inline-block;
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        color: #C4B5FD;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin: 0 2px;
+    }
+
+    /* Shiny Neon Buttons & Controls */
+    .stButton > button {
+        background: rgba(18, 18, 18, 0.8) !important;
+        color: #F9FAFB !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 9999px !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 0.88rem !important;
+        padding: 8px 22px !important;
+        transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1) !important;
+    }
+    .stButton > button:hover {
+        border-color: rgba(139, 92, 246, 0.6) !important;
+        box-shadow: 0 0 20px -5px rgba(139, 92, 246, 0.45) !important;
+        transform: translateY(-2px) !important;
+        background: rgba(28, 28, 35, 0.9) !important;
+        color: #FFFFFF !important;
+    }
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 0 20px -5px rgba(124, 58, 237, 0.5) !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        box-shadow: 0 0 28px -3px rgba(124, 58, 237, 0.75) !important;
+        transform: translateY(-2px) scale(1.02) !important;
+    }
+
+    /* Input Fields */
+    .stTextInput input {
+        background: rgba(12, 12, 12, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 14px !important;
+        color: #F3F4F6 !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 12px 18px !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    .stTextInput input:focus {
+        border-color: #8B5CF6 !important;
+        box-shadow: 0 0 15px -3px rgba(139, 92, 246, 0.4) !important;
+    }
+
+    /* Tabs Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        background: transparent !important;
+        gap: 16px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        margin-bottom: 24px !important;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background: transparent !important;
+        color: #9CA3AF !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        padding: 10px 18px !important;
+        border: none !important;
+        letter-spacing: 0.02em !important;
+    }
+    .stTabs [aria-selected="true"] {
+        color: #FFFFFF !important;
+        border-bottom: 2px solid #8B5CF6 !important;
+    }
+
+    /* Passage Citation Cards */
+    .synapse-passage {
+        background: rgba(255, 255, 255, 0.018);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 10px;
+    }
+    .synapse-passage-header {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.78rem;
+        color: #A78BFA;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    /* Metrics Cards */
+    [data-testid="stMetricValue"] {
+        font-family: 'JetBrains Mono', monospace !important;
+        color: #F3F4F6 !important;
+        font-size: 2rem !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-family: 'Inter', sans-serif !important;
+        color: #6B7280 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.15em !important;
+        font-size: 0.72rem !important;
+    }
+
+    /* Footer */
+    .synapse-footer {
+        background: #050505;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 40px 16px 24px 16px;
+        margin-top: 60px;
+        font-family: 'Inter', sans-serif;
+    }
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 24px;
+        max-width: 1100px;
+        margin: 0 auto 32px auto;
+    }
+    @media (max-width: 800px) {
+        .footer-grid { grid-template-columns: 1fr; }
+    }
+    .footer-brand-title {
+        font-family: 'Instrument Serif', Georgia, serif;
+        font-size: 1.8rem;
+        color: #FFFFFF;
+        margin-bottom: 6px;
+    }
+    .footer-col-head {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #6B7280;
+        margin-bottom: 12px;
+    }
+    .footer-link {
+        color: #9CA3AF;
         font-size: 0.85rem;
+        margin-bottom: 6px;
+        display: block;
+        text-decoration: none;
+    }
+    .footer-bottom-bar {
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        padding-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1100px;
+        margin: 0 auto;
+        font-size: 0.78rem;
+        color: #6B7280;
     }
     </style>
+    
+    <!-- Ambient Floating Glow Orbs in DOM -->
+    <div class="synapse-orb-violet"></div>
+    <div class="synapse-orb-cyan"></div>
     """,
     unsafe_allow_html=True
 )
@@ -151,7 +590,7 @@ library.init_library_db()
 # ==========================================
 # RESOURCE CACHE: EMBEDDING MODEL
 # ==========================================
-@st.cache_resource(show_spinner="Loading multilingual-e5-small model...")
+@st.cache_resource(show_spinner=False)
 def load_embedding_model():
     """Caches sentence-transformers multilingual-e5-small."""
     try:
@@ -164,7 +603,7 @@ def load_embedding_model():
 # SESSION STATE INITIALIZATION
 # ==========================================
 if "active_subject" not in st.session_state:
-    st.session_state.active_subject = None  # Dict of subject metadata
+    st.session_state.active_subject = None
 if "indexed_chunks" not in st.session_state:
     st.session_state.indexed_chunks = []
 if "faiss_index" not in st.session_state:
@@ -189,7 +628,6 @@ if "status_message" not in st.session_state:
     st.session_state.status_message = None
 
 
-# Helper to activate a subject from the library
 def activate_subject(subj: Dict[str, Any]):
     """Loads a subject's persisted FAISS index and chunks into session state."""
     idx, chunks = ingest.load_saved_index(subj["id"])
@@ -205,7 +643,7 @@ def activate_subject(subj: Dict[str, Any]):
 
 
 def get_demo_questions(subject_name: str, chunks: List[Dict[str, Any]], language_key: str = "English") -> List[str]:
-    """Preloads 5 high-yield sample presentation questions for the current subject."""
+    """Preloads sample presentation questions for the current subject."""
     all_text = " ".join([c.get("text", "") for c in (chunks or [])[:8]]).lower()
     is_life_processes = (
         "photosynthesis" in all_text or 
@@ -288,7 +726,6 @@ def get_demo_questions(subject_name: str, chunks: List[Dict[str, Any]], language
                 "Why does lactic acid accumulate in muscle cells during exercise?"
             ]
     else:
-        # Dynamic fallback questions derived from chunk text
         extracted = []
         for c in (chunks or []):
             text = c.get("text", "").strip()
@@ -313,10 +750,20 @@ if st.session_state.active_subject is None and existing_subjects:
     activate_subject(existing_subjects[0])
 
 # ==========================================
-# SIDEBAR CONTROLS (Zero exposed API keys)
+# SIDEBAR: SETUP & TEXTBOOK MANAGEMENT
 # ==========================================
 with st.sidebar:
-    st.markdown("### ⚙️ VidyaVaani Setup")
+    st.markdown(
+        """
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+            <span class="nav-dot"></span>
+            <span style="font-family: 'Instrument Serif', Georgia, serif; font-size: 1.45rem; color: #FFFFFF; font-weight: 500;">
+                VidyaVaani Setup
+            </span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
     # 1. Student Name
     student_name_input = st.text_input("👤 Student Name / ID", value=st.session_state.student_name)
@@ -332,18 +779,18 @@ with st.sidebar:
     current_lang = LANGUAGES[language_choice]
     st.caption(f"🎙️ Neural Voice: `{current_lang['voice']}`")
     
-    st.markdown("---")
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
 
     # Demo Mode Checkbox
     demo_mode = st.checkbox(
         "🎯 Demo mode",
         value=st.session_state.get("demo_mode", False),
-        help="Preloads 5 sample questions for the current subject as one-click buttons for smooth presentation without typing."
+        help="Preloads sample questions for the current subject as one-click buttons."
     )
     st.session_state.demo_mode = demo_mode
 
     if demo_mode:
-        st.markdown("##### ⚡ One-Click Demo Questions:")
+        st.markdown("<p style='font-size:0.75rem; letter-spacing:0.15em; text-transform:uppercase; color:#9CA3AF; margin-top:8px;'>Sample Prompts</p>", unsafe_allow_html=True)
         curr_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "General"
         demo_qs_sb = get_demo_questions(curr_subj_name, st.session_state.indexed_chunks, language_choice)
         for d_i, d_q in enumerate(demo_qs_sb):
@@ -351,10 +798,17 @@ with st.sidebar:
                 st.session_state.demo_query_triggered = d_q
                 st.rerun()
 
-    st.markdown("---")
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
 
     # 3. Textbook Upload & Indexing
-    st.markdown("### 📖 Upload Textbook Chapter")
+    st.markdown(
+        """
+        <p style='font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.15em; color:#9CA3AF;'>
+            Textbook Chapter
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
     upload_subject_name = st.text_input("Subject / Chapter Name", placeholder="e.g. Science - Life Processes")
     uploaded_file = st.file_uploader("Upload PDF File", type=["pdf"], help="Select a textbook chapter PDF")
 
@@ -439,38 +893,139 @@ with st.sidebar:
                 except Exception as ex:
                     st.error(f"Error loading demo: {ex}")
 
-    st.markdown("---")
-    # System Status Indicator
-    st.markdown("#### 📡 Active Textbook")
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
+    
+    # Active Subject Indicator
     if st.session_state.active_subject:
         subj = st.session_state.active_subject
-        st.success(f"✅ **{subj['name']}**\n- Pages: {subj['num_pages']} | Chunks: {subj['num_chunks']}")
+        st.markdown(
+            f"""
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 12px 14px;">
+                <div style="display:flex; align-items:center; gap:6px; color:#10B981; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em;">
+                    <span class="pulse-dot"></span> Active Chapter
+                </div>
+                <div style="font-weight:600; color:#F3F4F6; margin-top:4px; font-size:0.88rem;">{subj['name']}</div>
+                <div style="color:#9CA3AF; font-size:0.76rem; font-family:'JetBrains Mono', monospace; margin-top:2px;">
+                    {subj['num_pages']} Pages • {subj['num_chunks']} Chunks
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     else:
-        st.warning("⚠️ No subject selected. Upload a PDF or load the NCERT Demo.")
+        st.warning("⚠️ No subject loaded. Upload a PDF or click 'Load NCERT Demo'.")
 
 # ==========================================
-# MAIN HEADER
+# FIXED NAVIGATION PILL
 # ==========================================
-active_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "No Subject Loaded"
-
 st.markdown(
-    f"""
-    <div class="hero-card">
-        <h1>🎙️ VidyaVaani ({current_lang['native_name']})</h1>
-        <p>Voice-First Multilingual AI Tutor for School Learners • Grounded in Textbooks</p>
-        <div class="hero-badges">
-            <span class="badge-pill">👤 Learner: {st.session_state.student_name}</span>
-            <span class="badge-pill">🌐 Language: {current_lang['label']}</span>
-            <span class="badge-pill">📚 Subject: {active_subj_name}</span>
-            <span class="badge-pill">⚡ Multilingual-E5 RAG</span>
-            <span class="badge-pill">🗣️ Neural Edge-TTS</span>
+    """
+    <div class="nav-pill-container">
+        <div class="nav-pill">
+            <div class="nav-brand">
+                <span class="nav-dot"></span>
+                <span class="nav-title">VidyaVaani</span>
+            </div>
+            <div class="nav-links">
+                <span>VOICE RAG</span>
+                <span>•</span>
+                <span>9 INDIC VOICES</span>
+                <span>•</span>
+                <span>GROUNDED</span>
+            </div>
+            <div class="nav-cta">
+                <span class="pulse-dot"></span>
+                <span>OPERATIONAL</span>
+            </div>
         </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Translated Tab Headers
+# ==========================================
+# HERO SECTION (Synapse Editorial)
+# ==========================================
+active_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "No Chapter Loaded"
+
+st.markdown(
+    f"""
+    <div class="hero-container">
+        <h1 class="hero-heading">
+            Voices of Learning, <span class="shimmer-text">Grounded</span> in Knowledge
+        </h1>
+        <p class="hero-subtext">
+            A high-fidelity multilingual voice tutor engineered for educational equity. Strict textbook RAG, real-time regional neural speech, and zero hallucinations.
+        </p>
+        <div class="hero-badges-row">
+            <span class="synapse-badge">👤 {st.session_state.student_name}</span>
+            <span class="synapse-badge">🌐 {current_lang['label']}</span>
+            <span class="synapse-badge">📚 {active_subj_name}</span>
+            <span class="synapse-badge">⚡ Gemini 3.8 Flash</span>
+            <span class="synapse-badge">🗣️ Neural Edge-TTS</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==========================================
+# INFINITE METRICS TICKER
+# ==========================================
+st.markdown(
+    """
+    <div class="ticker-wrapper">
+        <div class="ticker-track">
+            <div class="ticker-item"><span class="ticker-label">REASONING:</span><span class="ticker-value ticker-accent-violet">GEMINI 3.8 FLASH</span></div>
+            <div class="ticker-item"><span class="ticker-label">RETRIEVAL:</span><span class="ticker-value ticker-accent-cyan">FAISS DENSE COSINE</span></div>
+            <div class="ticker-item"><span class="ticker-label">EMBEDDINGS:</span><span class="ticker-value">MULTILINGUAL-E5</span></div>
+            <div class="ticker-item"><span class="ticker-label">TTS ENGINE:</span><span class="ticker-value ticker-accent-violet">AZURE NEURAL (EDGE)</span></div>
+            <div class="ticker-item"><span class="ticker-label">LANGUAGES:</span><span class="ticker-value ticker-accent-emerald">9 REGIONAL INDIC</span></div>
+            <div class="ticker-item"><span class="ticker-label">ACCURACY:</span><span class="ticker-value">MANDATORY CITATIONS</span></div>
+            <div class="ticker-item"><span class="ticker-label">STATUS:</span><span class="ticker-value ticker-accent-emerald">ACTIVE & GROUNDED</span></div>
+            <!-- Duplicate for seamless infinite loop -->
+            <div class="ticker-item"><span class="ticker-label">REASONING:</span><span class="ticker-value ticker-accent-violet">GEMINI 3.8 FLASH</span></div>
+            <div class="ticker-item"><span class="ticker-label">RETRIEVAL:</span><span class="ticker-value ticker-accent-cyan">FAISS DENSE COSINE</span></div>
+            <div class="ticker-item"><span class="ticker-label">EMBEDDINGS:</span><span class="ticker-value">MULTILINGUAL-E5</span></div>
+            <div class="ticker-item"><span class="ticker-label">TTS ENGINE:</span><span class="ticker-value ticker-accent-violet">AZURE NEURAL (EDGE)</span></div>
+            <div class="ticker-item"><span class="ticker-label">LANGUAGES:</span><span class="ticker-value ticker-accent-emerald">9 REGIONAL INDIC</span></div>
+            <div class="ticker-item"><span class="ticker-label">ACCURACY:</span><span class="ticker-value">MANDATORY CITATIONS</span></div>
+            <div class="ticker-item"><span class="ticker-label">STATUS:</span><span class="ticker-value ticker-accent-emerald">ACTIVE & GROUNDED</span></div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==========================================
+# 3-COLUMN INTERACTIVE FEATURE CARDS
+# ==========================================
+st.markdown(
+    """
+    <div class="synapse-feature-grid">
+        <div class="synapse-card">
+            <div class="card-icon-box">🎙️</div>
+            <div class="card-title">Regional Neural Voice</div>
+            <div class="card-body">Natural speech synthesis across 9 Indian languages. Every concept is spoken aloud in warm, native dialect accents.</div>
+        </div>
+        <div class="synapse-card">
+            <div class="card-icon-box">🛡️</div>
+            <div class="card-title">Strict Grounding & Refusal</div>
+            <div class="card-body">Zero external hallucination. All answers cite verified textbook pages, and off-topic questions trigger polite translated refusals.</div>
+        </div>
+        <div class="synapse-card">
+            <div class="card-icon-box">💡</div>
+            <div class="card-title">Scaffolding for Learners</div>
+            <div class="card-body">One-click 'Explain Simpler' rewrites jargon into gentle analogies, while 'Give an Example' connects concepts to Indian daily life.</div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==========================================
+# TRANSLATED TABS
+# ==========================================
 ui = current_lang["ui"]
 tab_ask, tab_quiz, tab_subjects, tab_analytics = st.tabs([
     ui["ask_tab"],
@@ -480,14 +1035,34 @@ tab_ask, tab_quiz, tab_subjects, tab_analytics = st.tabs([
 ])
 
 # ==============================================================================
-# TAB 1: 🗣️ ASK TUTOR (STUDENT EXPERIENCE)
+# TAB 1: 🗣️ ASK TUTOR
 # ==============================================================================
 with tab_ask:
-    st.subheader(f"Ask your question in {current_lang['label']}")
-    st.caption("Ask questions by voice or typing. VidyaVaani answers with spoken audio and textbook citations.")
-    st.info(current_lang["greeting"])
+    st.markdown(
+        f"""
+        <div style="margin-bottom: 16px;">
+            <div style="font-family:'Instrument Serif', Georgia, serif; font-size: 1.8rem; color:#FFFFFF;">
+                Ask your question in {current_lang['label']}
+            </div>
+            <div style="color:#9CA3AF; font-size:0.9rem;">
+                Speak or type. VidyaVaani answers with spoken regional audio and textbook citations.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # 1. Voice Input Option (if mic recorder installed)
+    # Greeting Banner
+    st.markdown(
+        f"""
+        <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 14px; padding: 12px 18px; margin-bottom: 16px; color: #E9D5FF; font-size: 0.95rem;">
+            💬 {current_lang['greeting']}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Voice Input (if mic recorder available)
     voice_query_text = None
     if speech_to_text is not None:
         col_mic, col_mic_info = st.columns([1, 4])
@@ -496,13 +1071,13 @@ with tab_ask:
                 language=current_lang.get("bcp47", "en-IN"),
                 start_prompt="🎙️ Speak Question",
                 stop_prompt="⏹️ Stop Recording",
-                key="mic_recorder"
+                key="synapse_mic_recorder"
             )
         with col_mic_info:
             if voice_query_text:
                 st.success(f"Recognized Voice: *\"{voice_query_text}\"*")
 
-    # 2. Text Query Form
+    # Text Query Form
     with st.form("ask_form", clear_on_submit=False):
         col_in, col_btn = st.columns([4, 1])
         with col_in:
@@ -515,16 +1090,17 @@ with tab_ask:
         with col_btn:
             ask_submitted = st.form_submit_button(ui["ask_btn"], type="primary", use_container_width=True)
 
-    # 3. Demo Mode One-Click Presentation Questions
+    # Demo Mode One-Click Questions
     tab_demo_selected = None
     if st.session_state.get("demo_mode", False):
         curr_subj_name = st.session_state.active_subject['name'] if st.session_state.active_subject else "General"
         demo_qs_tab = get_demo_questions(curr_subj_name, st.session_state.indexed_chunks, language_choice)
         st.markdown(
             """
-            <div style="background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); padding: 12px 18px; border-radius: 12px; border: 1px solid #C7D2FE; margin-top: 10px; margin-bottom: 12px;">
-                <b style="color: #3730A3; font-size: 0.95rem;">🎯 Demo Mode Active:</b>
-                <span style="color: #4338CA; font-size: 0.88rem;"> Click any preloaded sample question below to present instantly:</span>
+            <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2); padding: 10px 16px; border-radius: 12px; margin: 10px 0;">
+                <span style="color: #22D3EE; font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.1em;">
+                    ⚡ One-Click Presentation Prompts
+                </span>
             </div>
             """,
             unsafe_allow_html=True
@@ -536,7 +1112,7 @@ with tab_ask:
                 if st.button(f"✨ {d_q}", key=f"tab_demo_btn_{d_i}", use_container_width=True):
                     tab_demo_selected = d_q
 
-    # 4. Learner Scaffolding Quick Actions
+    # Pedagogical Scaffolding Quick Action Buttons
     col_s1, col_s2, col_s3, col_s4 = st.columns(4)
     with col_s1:
         btn_simpler = st.button(ui["simpler_btn"], use_container_width=True)
@@ -545,9 +1121,9 @@ with tab_ask:
     with col_s3:
         btn_sample_1 = st.button("🌱 What is Photosynthesis?", use_container_width=True)
     with col_s4:
-        btn_sample_2 = st.button("🫀 How does Respiration work?", use_container_width=True)
+        btn_sample_2 = st.button("🫀 Respiration & Energy", use_container_width=True)
 
-    # Determine Active Query and Action Modifier
+    # Determine Query
     triggered_query = None
     action_type = "normal"
 
@@ -568,12 +1144,12 @@ with tab_ask:
     elif btn_sample_2:
         triggered_query = "What is the difference between aerobic and anaerobic respiration?"
 
-    # Execute RAG Pipeline (Clean server-side LLM call)
+    # Execute RAG Pipeline
     if triggered_query:
         if not st.session_state.indexed_chunks or st.session_state.faiss_index is None:
             st.error(ui["no_subject_alert"])
         else:
-            with st.spinner("Searching textbook chapter and synthesizing voice answer..."):
+            with st.spinner("Searching textbook vector index and reasoning with Gemini..."):
                 emb_model = load_embedding_model()
                 top_chunks, top_score = retrieval.search_similar_chunks(
                     query=triggered_query,
@@ -583,7 +1159,6 @@ with tab_ask:
                     k=TOP_K
                 )
 
-                # Server-side LLM call without frontend API key handling
                 answer = llm.generate_tutor_response(
                     query=triggered_query,
                     context_chunks=top_chunks,
@@ -597,7 +1172,7 @@ with tab_ask:
                     language_key=language_choice
                 )
 
-                # Persist interaction to database
+                # Persist to database
                 subj_id = st.session_state.active_subject["id"] if st.session_state.active_subject else None
                 library.log_interaction(
                     student_name=st.session_state.student_name,
@@ -612,29 +1187,43 @@ with tab_ask:
                 st.session_state.last_sources = top_chunks
                 st.session_state.last_audio_path = audio_file
 
-    # Render Answer & Audio
+    # Render High-Tech Dark IDE-Style Tutor Response
     if st.session_state.last_response:
-        st.markdown(f"### {ui['tutor_response']}")
-        
-        # Audio Player
-        if st.session_state.last_audio_path and os.path.exists(st.session_state.last_audio_path):
-            st.markdown(f"**{ui['audio_label']}**")
-            with open(st.session_state.last_audio_path, "rb") as af:
-                st.audio(af.read(), format="audio/mp3")
-
-        # Answer Bubble
-        formatted_resp = st.session_state.last_response.replace("\n", "<br>")
         st.markdown(
             f"""
-            <div class="tutor-bubble">
-                <div style="font-weight: 700; color: #4338CA; margin-bottom: 8px;">
-                    🗣️ VidyaVaani ({current_lang['label']}):
+            <div class="ide-window">
+                <div class="ide-toolbar">
+                    <div class="ide-controls">
+                        <span class="control-dot dot-red"></span>
+                        <span class="control-dot dot-yellow"></span>
+                        <span class="control-dot dot-green"></span>
+                    </div>
+                    <div class="ide-filename">vidyavaani.response • {current_lang['label']}</div>
+                    <div class="ide-status">
+                        <span class="pulse-dot"></span>
+                        <span>GROUNDED</span>
+                    </div>
                 </div>
-                <div>{formatted_resp}</div>
+                <div class="ide-content">
+                    {st.session_state.last_response.replace(chr(10), '<br>')}
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
+
+        # Audio Player with Ambient Frame
+        if st.session_state.last_audio_path and os.path.exists(st.session_state.last_audio_path):
+            st.markdown(
+                f"""
+                <div style="display:flex; align-items:center; gap:8px; margin: 8px 0;">
+                    <span style="font-family:'Instrument Serif', Georgia, serif; font-size:1.25rem; color:#A78BFA;">🎙️ {ui['audio_label']}</span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            with open(st.session_state.last_audio_path, "rb") as af:
+                st.audio(af.read(), format="audio/mp3")
 
         # Grounding Passages Expander
         with st.expander(ui["sources_title"], expanded=False):
@@ -642,9 +1231,9 @@ with tab_ask:
                 for idx, src in enumerate(st.session_state.last_sources):
                     st.markdown(
                         f"""
-                        <div class="passage-card">
-                            <span class="passage-page">Passage #{idx+1} — [Page {src['page']}] (Similarity Score: {src.get('score', 0):.3f})</span><br>
-                            <em>"{src['text']}"</em>
+                        <div class="synapse-passage">
+                            <div class="synapse-passage-header">PASSAGE #{idx+1} — [PAGE {src['page']}] • SIMILARITY: {src.get('score', 0):.3f}</div>
+                            <div style="color: #D1D5DB; font-size: 0.9rem; line-height: 1.5;">"{src['text']}"</div>
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -656,8 +1245,17 @@ with tab_ask:
 # TAB 2: 📝 PRACTICE QUIZ
 # ==============================================================================
 with tab_quiz:
-    st.subheader(ui["quiz_title"])
-    st.caption("5 multiple-choice questions grounded strictly in the active chapter.")
+    st.markdown(
+        f"""
+        <div style="font-family:'Instrument Serif', Georgia, serif; font-size: 1.8rem; color:#FFFFFF; margin-bottom: 4px;">
+            {ui['quiz_title']}
+        </div>
+        <div style="color:#9CA3AF; font-size:0.9rem; margin-bottom: 16px;">
+            5 multiple-choice questions grounded strictly in the active textbook chapter.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     col_qbtn, col_qinfo = st.columns([1, 2])
     with col_qbtn:
@@ -665,7 +1263,7 @@ with tab_quiz:
             if not st.session_state.indexed_chunks:
                 st.warning(ui["no_subject_alert"])
             else:
-                with st.spinner("Generating 5 chapter questions..."):
+                with st.spinner("Generating 5 chapter questions with Gemini 3.8 Flash..."):
                     qdata = quiz.generate_chapter_quiz(
                         chunks=st.session_state.indexed_chunks,
                         language_key=language_choice
@@ -676,16 +1274,24 @@ with tab_quiz:
                     st.rerun()
 
     if st.session_state.quiz_data:
-        st.markdown("---")
+        st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
         with st.form("quiz_form"):
             user_choices = {}
             for item in st.session_state.quiz_data:
-                st.markdown(f"**Q{item['id']}: {item['question']}**")
+                st.markdown(
+                    f"""
+                    <div style="font-family:'Instrument Serif', Georgia, serif; font-size: 1.25rem; color:#FFFFFF; margin-top: 14px;">
+                        Q{item['id']}: {item['question']}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
                 choice = st.radio(
                     f"Options for Q{item['id']}:",
                     options=item["options"],
                     key=f"quiz_opt_{item['id']}",
-                    index=None
+                    index=None,
+                    label_visibility="collapsed"
                 )
                 user_choices[item["id"]] = choice
                 st.write("")
@@ -730,26 +1336,30 @@ with tab_quiz:
             )
 
             # Score Banner
-            st.markdown("---")
+            st.markdown("<hr style='border-color: rgba(255,255,255,0.06);'>", unsafe_allow_html=True)
             if pct >= 80:
                 st.balloons()
-                st.success(f"🎉 Fantastic Job, {st.session_state.student_name}! Score: **{score}/{total} ({pct}%)**")
+                st.success(f"🎉 Outstanding, {st.session_state.student_name}! Score: **{score}/{total} ({pct}%)**")
             elif pct >= 50:
-                st.info(f"👍 Good effort, {st.session_state.student_name}! Score: **{score}/{total} ({pct}%)**. Review the chapter to improve!")
+                st.info(f"👍 Good effort, {st.session_state.student_name}! Score: **{score}/{total} ({pct}%)**. Review your textbook to reach 100%!")
             else:
-                st.warning(f"📚 Score: **{score}/{total} ({pct}%)**. Don't worry! Ask VidyaVaani about these topics and try again.")
+                st.warning(f"📚 Score: **{score}/{total} ({pct}%)**. Ask VidyaVaani to explain simpler and retry!")
 
             # Review Details
-            st.markdown("#### Detailed Question Review:")
+            st.markdown("#### Question-by-Question Review:")
             for f in feedback_list:
                 status_text = "✅ Correct" if f["is_correct"] else "❌ Incorrect"
-                color = "#059669" if f["is_correct"] else "#DC2626"
+                color = "#10B981" if f["is_correct"] else "#EF4444"
                 st.markdown(
                     f"""
-                    <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px;">
-                        <strong>Q{f['id']}: {f['question']}</strong><br>
-                        <span style="color: {color}; font-weight: 700;">{status_text}</span> • Your Answer: <code>{f['chosen']}</code> • Correct: <code>Option {f['correct']}</code><br>
-                        <span style="font-size: 0.9rem; color: #4B5563;">💡 <em>{f['explanation']} [Page {f['page']}]</em></span>
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px;">
+                        <div style="font-weight: 600; color: #FFFFFF;">Q{f['id']}: {f['question']}</div>
+                        <div style="margin-top: 4px;">
+                            <span style="color: {color}; font-weight: 700;">{status_text}</span> • Your Answer: <code>{f['chosen']}</code> • Correct: <code>Option {f['correct']}</code>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #9CA3AF; margin-top: 4px;">
+                            💡 <em>{f['explanation']} [Page {f['page']}]</em>
+                        </div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -758,15 +1368,24 @@ with tab_quiz:
         st.info("Click 'Generate / Refresh Quiz' above to create questions from your active textbook.")
 
 # ==============================================================================
-# TAB 3: 📚 MY SUBJECTS LIBRARY (REGISTRY & MANAGEMENT)
+# TAB 3: 📚 MY SUBJECTS LIBRARY
 # ==============================================================================
 with tab_subjects:
-    st.subheader("📚 My Subjects Library")
-    st.caption("Manage saved textbooks, re-index documents, or select an active subject.")
+    st.markdown(
+        """
+        <div style="font-family:'Instrument Serif', Georgia, serif; font-size: 1.8rem; color:#FFFFFF; margin-bottom: 4px;">
+            My Subjects Library
+        </div>
+        <div style="color:#9CA3AF; font-size:0.9rem; margin-bottom: 20px;">
+            Manage saved textbooks, re-index documents, or activate another subject.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     all_subjects = library.list_subjects()
     if not all_subjects:
-        st.info("No subjects saved yet. Upload a PDF or click 'Load NCERT Demo Chapter' in the sidebar.")
+        st.info("No subjects registered yet. Upload a PDF or click 'Load NCERT Demo' in the sidebar.")
     else:
         for subj in all_subjects:
             is_active = (
@@ -776,8 +1395,8 @@ with tab_subjects:
             col_info, col_act1, col_act2, col_act3 = st.columns([4, 1.2, 1.2, 1.2])
             
             with col_info:
-                active_badge = " 🟢 **(Active)**" if is_active else ""
-                st.markdown(f"### {subj['name']}{active_badge}")
+                active_badge = " 🟢 <span style='color:#10B981; font-size:0.85rem; font-family:sans-serif;'>(Active)</span>" if is_active else ""
+                st.markdown(f"<h3 style='margin:0; font-family:\"Instrument Serif\", serif;'>{subj['name']}{active_badge}</h3>", unsafe_allow_html=True)
                 st.caption(f"File: `{subj['filename']}` • Pages: {subj['num_pages']} • Chunks: {subj['num_chunks']} • Saved: {subj['created_at']}")
             
             with col_act1:
@@ -815,14 +1434,23 @@ with tab_subjects:
                     st.success(f"Deleted '{subj['name']}'")
                     st.rerun()
 
-            st.markdown("---")
+            st.markdown("<hr style='border-color: rgba(255,255,255,0.04); margin: 12px 0;'>", unsafe_allow_html=True)
 
 # ==============================================================================
-# TAB 4: 📊 TEACHER / ADMIN LEARNING ANALYTICS
+# TAB 4: 📊 TEACHER ANALYTICS
 # ==============================================================================
 with tab_analytics:
-    st.subheader("📊 VidyaVaani Learning Analytics")
-    st.caption("Student engagement, regional language distribution, quiz performance, and activity logs.")
+    st.markdown(
+        """
+        <div style="font-family:'Instrument Serif', Georgia, serif; font-size: 1.8rem; color:#FFFFFF; margin-bottom: 4px;">
+            VidyaVaani Learning Analytics
+        </div>
+        <div style="color:#9CA3AF; font-size:0.9rem; margin-bottom: 20px;">
+            Teacher and administrative metrics: student query audit, regional language spread, and quiz mastery.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     with library.get_connection() as conn:
         q_count = conn.execute("SELECT COUNT(*) FROM interactions").fetchone()[0] or 0
@@ -843,38 +1471,81 @@ with tab_analytics:
         top_lang = top_l_row[0] if top_l_row else "English"
 
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-    col_m1.metric("Total Questions Asked", q_count)
-    col_m2.metric("Active Students", s_count)
-    col_m3.metric("Average Quiz Score", f"{avg_score}%")
+    col_m1.metric("Total Inquiries", q_count)
+    col_m2.metric("Active Learners", s_count)
+    col_m3.metric("Average Score", f"{avg_score}%")
     col_m4.metric("Top Language", top_lang)
 
-    st.markdown("---")
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.06); margin: 24px 0;'>", unsafe_allow_html=True)
     
-    # Language Breakdown Chart
     col_c1, col_c2 = st.columns(2)
     with col_c1:
-        st.markdown("#### 🌐 Regional Language Breakdown")
+        st.markdown("<div style='font-family:\"Instrument Serif\", serif; font-size: 1.3rem; margin-bottom: 8px;'>Regional Language Breakdown</div>", unsafe_allow_html=True)
         with library.get_connection() as conn:
             lang_df = pd.read_sql_query("SELECT language, COUNT(*) as count FROM interactions GROUP BY language ORDER BY count DESC", conn)
         if not lang_df.empty:
-            st.bar_chart(lang_df.set_index("language")["count"], color="#4F46E5")
+            st.bar_chart(lang_df.set_index("language")["count"], color="#8B5CF6")
         else:
-            st.info("No questions asked yet.")
+            st.info("No questions logged yet.")
 
     with col_c2:
-        st.markdown("#### 📈 Quiz Score Distribution")
+        st.markdown("<div style='font-family:\"Instrument Serif\", serif; font-size: 1.3rem; margin-bottom: 8px;'>Quiz Score Mastery Distribution</div>", unsafe_allow_html=True)
         with library.get_connection() as conn:
             quiz_df = pd.read_sql_query("SELECT student_name, ROUND((CAST(score AS FLOAT)/total)*100, 1) as percentage FROM quiz_results ORDER BY id DESC LIMIT 20", conn)
         if not quiz_df.empty:
-            st.bar_chart(quiz_df.set_index("student_name")["percentage"], color="#059669")
+            st.bar_chart(quiz_df.set_index("student_name")["percentage"], color="#10B981")
         else:
-            st.info("No quiz results yet.")
+            st.info("No quiz scores logged yet.")
 
-    st.markdown("---")
-    st.markdown("#### 🕒 Recent Activity Log")
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.06); margin: 24px 0;'>", unsafe_allow_html=True)
+    st.markdown("<div style='font-family:\"Instrument Serif\", serif; font-size: 1.3rem; margin-bottom: 12px;'>Recent Inquiry Audit Log</div>", unsafe_allow_html=True)
     with library.get_connection() as conn:
         logs_df = pd.read_sql_query("SELECT id, student_name, language, query, response, timestamp FROM interactions ORDER BY id DESC LIMIT 50", conn)
     if not logs_df.empty:
         st.dataframe(logs_df, use_container_width=True, hide_index=True)
     else:
-        st.info("No activity recorded.")
+        st.info("No activity logged yet.")
+
+# ==========================================
+# SYNAPSE FOOTER
+# ==========================================
+st.markdown(
+    """
+    <footer class="synapse-footer">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-brand-title">VidyaVaani</div>
+                <div style="color: #9CA3AF; font-size: 0.88rem; max-width: 320px; line-height: 1.5; font-weight: 300;">
+                    Futuristic voice-first educational equity for school learners. Grounded in NCERT textbooks with Microsoft Azure neural Indian accents.
+                </div>
+            </div>
+            <div>
+                <div class="footer-col-head">Core Engine</div>
+                <div class="footer-link">Gemini 3.8 Flash</div>
+                <div class="footer-link">FAISS Vector Index</div>
+                <div class="footer-link">Multilingual-E5</div>
+            </div>
+            <div>
+                <div class="footer-col-head">Speech & TTS</div>
+                <div class="footer-link">Microsoft Edge-TTS</div>
+                <div class="footer-link">9 Regional Accents</div>
+                <div class="footer-link">Low-Latency Audio</div>
+            </div>
+            <div>
+                <div class="footer-col-head">Architecture</div>
+                <div class="footer-link">Decoupled Backend</div>
+                <div class="footer-link">SQLite Audit Layer</div>
+                <div class="footer-link">Synapse Design System</div>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <div>© 2026 VidyaVaani • Synapse System. Educational Equity for Every Learner.</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="pulse-dot"></span>
+                <span style="color: #10B981; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;">ALL SYSTEMS OPERATIONAL</span>
+            </div>
+        </div>
+    </footer>
+    """,
+    unsafe_allow_html=True
+)
