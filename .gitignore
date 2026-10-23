@@ -17,10 +17,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Virtual Environment
-.venv/
-venv/
-ENV/
+# Streamlit (legacy)
+.streamlit/
+frontend/
 
 # Environment variables & secrets
 .env
