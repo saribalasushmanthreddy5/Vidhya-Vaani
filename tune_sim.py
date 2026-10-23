@@ -1,6 +1,10 @@
-import ingest
-import retrieval
-from config import DEFAULT_SAMPLE_PDF
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import backend.ingest as ingest
+import backend.retrieval as retrieval
+from backend.config import DEFAULT_SAMPLE_PDF
 import faiss
 
 chunks, pages = ingest.extract_chunks_from_pdf(str(DEFAULT_SAMPLE_PDF))

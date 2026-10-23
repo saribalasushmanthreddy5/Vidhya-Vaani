@@ -6,19 +6,26 @@ Provides zero-setup local persistence for student interactions, quiz results, an
 import sqlite3
 import pandas as pd
 from datetime import datetime
+from pathlib import Path
 
-DEFAULT_DB_PATH = "vidyavaani.db"
+try:
+    from backend.config import DB_PATH
+except (ImportError, ValueError):
+    from config import DB_PATH
+
+DEFAULT_DB_PATH = str(DB_PATH)
 
 
 def get_connection(db_path=DEFAULT_DB_PATH):
     """Establishes a connection to the SQLite database with thread safety."""
-    conn = sqlite3.connect(db_path, check_same_thread=False)
+    conn = sqlite3.connect(str(db_path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db(db_path=DEFAULT_DB_PATH):
     """Initializes tables automatically on app startup if they do not exist."""
+    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     with get_connection(db_path) as conn:
         cursor = conn.cursor()
         

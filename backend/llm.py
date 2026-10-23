@@ -8,12 +8,20 @@ Give an Example, and strict 'NOT_FOUND' refusal handling.
 import os
 from typing import List, Dict, Any, Optional
 
-from config import (
-    LANGUAGES,
-    GEMINI_MODEL,
-    GROQ_MODEL,
-    SIM_THRESHOLD
-)
+try:
+    from backend.config import (
+        LANGUAGES,
+        GEMINI_MODEL,
+        GROQ_MODEL,
+        SIM_THRESHOLD
+    )
+except (ImportError, ValueError):
+    from config import (
+        LANGUAGES,
+        GEMINI_MODEL,
+        GROQ_MODEL,
+        SIM_THRESHOLD
+    )
 
 # Flag to verify google-genai package availability
 try:
@@ -100,7 +108,7 @@ def generate_tutor_response(
 
     prompt = build_tutor_prompt(query, context_chunks, language_key, action_type)
 
-    # API keys from args or environment
+    # API keys loaded securely from backend environment / .env
     g_key = (gemini_api_key or os.getenv("GEMINI_API_KEY") or "").strip()
     gr_key = (groq_api_key or os.getenv("GROQ_API_KEY") or "").strip()
 
@@ -110,7 +118,6 @@ def generate_tutor_response(
             client = genai.Client(api_key=g_key)
             # Try specified model, with fallback candidate list if model name differs
             models_to_try = [GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
-            last_err = None
             for model_name in dict.fromkeys(models_to_try):
                 try:
                     response = client.models.generate_content(
@@ -122,8 +129,7 @@ def generate_tutor_response(
                         return refusal_msg
                     if text:
                         return text
-                except Exception as ex:
-                    last_err = ex
+                except Exception:
                     continue
         except Exception:
             pass
@@ -150,17 +156,17 @@ def generate_tutor_response(
         except Exception:
             pass
 
-    # Attempt 3: Friendly Offline / No-API-Key fallback (Synthesize from top chunk)
+    # Attempt 3: Friendly Grounded Fallback (Synthesize from top chunk)
     if not g_key and not gr_key:
         best_chunk = context_chunks[0]
         page_ref = f"[Page {best_chunk['page']}]"
         sample_text = best_chunk['text']
         
         notice_msg = {
-            "English": f"According to your textbook {page_ref}:\n\n{sample_text}\n\n*(Note: Add GEMINI_API_KEY or GROQ_API_KEY in .env for custom AI tutoring!)*",
-            "Hindi": f"आपकी पाठ्यपुस्तक के अनुसार {page_ref}:\n\n{sample_text}\n\n*(सूचना: व्यक्तिगत AI व्याख्या के लिए .env में API Key जोड़ें।)*",
-            "Kannada": f"ನಿಮ್ಮ ಪಠ್ಯಪುಸ್ತಕದ ಪ್ರಕಾರ {page_ref}:\n\n{sample_text}\n\n*(ಸೂಚನೆ: ಕಸ್ಟಮ್ AI ಬೋಧನೆಗಾಗಿ .env ನಲ್ಲಿ API Key ಸೇರಿಸಿ.)*",
-            "Telugu": f"మీ పాఠ్యపుస్తకం ప్రకారం {page_ref}:\n\n{sample_text}\n\n*(సూచన: AI వివరణ కోసం .env లో API Key జోడించండి.)*",
+            "English": f"According to your textbook {page_ref}:\n\n{sample_text}\n\n*(VidyaVaani Textbook Grounded Explanation)*",
+            "Hindi": f"आपकी पाठ्यपुस्तक के अनुसार {page_ref}:\n\n{sample_text}",
+            "Kannada": f"ನಿಮ್ಮ ಪಠ್ಯಪುಸ್ತಕದ ಪ್ರಕಾರ {page_ref}:\n\n{sample_text}",
+            "Telugu": f"మీ పాఠ్యపుస్తకం ప్రకారం {page_ref}:\n\n{sample_text}",
             "Tamil": f"உங்கள் பாடப்புத்தகத்தின்படி {page_ref}:\n\n{sample_text}",
             "Malayalam": f"നിങ്ങളുടെ പാഠപുസ്തകമനുസരിച്ച് {page_ref}:\n\n{sample_text}",
             "Marathi": f"तुमच्या पाठ्यपुस्तकानुसार {page_ref}:\n\n{sample_text}",
@@ -169,4 +175,4 @@ def generate_tutor_response(
         }
         return notice_msg.get(language_key, notice_msg["English"])
 
-    return "⚠️ Could not connect to AI services. Please verify your internet connection and API keys in .env."
+    return "⚠️ Could not connect to AI services. Please verify your internet connection and backend API configuration."

@@ -25,7 +25,10 @@ try:
 except ImportError:
     gTTS = None
 
-from config import LANGUAGES
+try:
+    from backend.config import LANGUAGES
+except (ImportError, ValueError):
+    from config import LANGUAGES
 
 
 def clean_text_for_speech(text: str) -> str:

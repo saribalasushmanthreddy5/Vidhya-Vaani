@@ -8,23 +8,24 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env if present
-load_dotenv()
-
 # ==========================================
 # PATHS & PERSISTENCE
 # ==========================================
-BASE_DIR = Path(__file__).parent.resolve()
+# Root of the project workspace
+BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 INDEX_DIR = DATA_DIR / "indexes"
 DB_PATH = DATA_DIR / "vidyavaani.db"
 DEFAULT_SAMPLE_PDF = BASE_DIR / "sample_chapter.pdf"
 
+# Load environment variables strictly from root .env if present
+load_dotenv(BASE_DIR / ".env")
+
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 INDEX_DIR.mkdir(parents=True, exist_ok=True)
 
 # ==========================================
-# MODELS & PARAMETERS
+# MODELS & PARAMETERS (Server-Side Backend)
 # ==========================================
 # Primary LLM via google-genai
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")

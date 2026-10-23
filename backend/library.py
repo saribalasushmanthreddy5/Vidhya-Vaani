@@ -10,7 +10,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-from config import DB_PATH, INDEX_DIR
+try:
+    from backend.config import DB_PATH, INDEX_DIR
+except (ImportError, ValueError):
+    from config import DB_PATH, INDEX_DIR
 
 
 def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:

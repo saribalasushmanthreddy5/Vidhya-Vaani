@@ -47,6 +47,8 @@ vidyavaani.db
 *.mp3
 *.wav
 temp_*
+tunnel_url.txt
+data/logs/
 
 # IDE & Editor files
 .vscode/
@@ -55,3 +57,4 @@ temp_*
 *.sublime-workspace
 .DS_Store
 Thumbs.db
+

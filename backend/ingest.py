@@ -15,7 +15,10 @@ import pymupdf as fitz
 import faiss
 import numpy as np
 
-from config import INDEX_DIR, CHUNK_SIZE_WORDS, CHUNK_OVERLAP_WORDS
+try:
+    from backend.config import INDEX_DIR, CHUNK_SIZE_WORDS, CHUNK_OVERLAP_WORDS
+except (ImportError, ValueError):
+    from config import INDEX_DIR, CHUNK_SIZE_WORDS, CHUNK_OVERLAP_WORDS
 
 
 def extract_chunks_from_pdf(

@@ -9,7 +9,10 @@ import re
 import json
 from typing import List, Dict, Any, Optional
 
-from config import LANGUAGES, GEMINI_MODEL, GROQ_MODEL
+try:
+    from backend.config import LANGUAGES, GEMINI_MODEL, GROQ_MODEL
+except (ImportError, ValueError):
+    from config import LANGUAGES, GEMINI_MODEL, GROQ_MODEL
 
 # google-genai
 try:
@@ -97,7 +100,7 @@ Example JSON Structure:
 """
 
 
-def _invoke_llm_for_quiz(prompt: str, gemini_api_key: Optional[str], groq_api_key: Optional[str]) -> Optional[str]:
+def _invoke_llm_for_quiz(prompt: str, gemini_api_key: Optional[str] = None, groq_api_key: Optional[str] = None) -> Optional[str]:
     """Helper to query Gemini or Groq for raw quiz text."""
     g_key = (gemini_api_key or os.getenv("GEMINI_API_KEY") or "").strip()
     gr_key = (groq_api_key or os.getenv("GROQ_API_KEY") or "").strip()

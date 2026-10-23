@@ -17,13 +17,19 @@ import tempfile
 import pymupdf as fitz
 from pathlib import Path
 
-from config import LANGUAGES, DEFAULT_SAMPLE_PDF, DB_PATH, INDEX_DIR
-import library
-import ingest
-import retrieval
-import llm
-import speech
-import quiz
+_ROOT = Path(__file__).resolve().parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+if str(_ROOT / "backend") not in sys.path:
+    sys.path.insert(0, str(_ROOT / "backend"))
+
+from backend.config import LANGUAGES, DEFAULT_SAMPLE_PDF, DB_PATH, INDEX_DIR
+import backend.library as library
+import backend.ingest as ingest
+import backend.retrieval as retrieval
+import backend.llm as llm
+import backend.speech as speech
+import backend.quiz as quiz
 
 
 def run_all_tests():

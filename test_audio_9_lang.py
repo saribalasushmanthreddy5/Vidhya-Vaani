@@ -4,8 +4,12 @@ Verifies edge-tts and gTTS fallback for each language.
 """
 
 import os
-from config import LANGUAGES
-import speech
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from backend.config import LANGUAGES
+import backend.speech as speech
 
 sample_phrases = {
     "English": "Welcome to VidyaVaani. Photosynthesis creates glucose and oxygen in plant leaves.",

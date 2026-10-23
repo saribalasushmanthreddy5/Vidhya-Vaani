@@ -9,7 +9,10 @@ import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 
-from config import EMBEDDING_MODEL_NAME, TOP_K, SIM_THRESHOLD
+try:
+    from backend.config import EMBEDDING_MODEL_NAME, TOP_K, SIM_THRESHOLD
+except (ImportError, ValueError):
+    from config import EMBEDDING_MODEL_NAME, TOP_K, SIM_THRESHOLD
 
 _MODEL_INSTANCE: Optional[SentenceTransformer] = None
 
