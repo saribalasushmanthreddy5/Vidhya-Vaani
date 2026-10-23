@@ -214,9 +214,33 @@ export const TEXTBOOK_CHUNKS: TextbookChunk[] = [
     text: "Within human lungs, the respiratory passage branches repeatedly into smaller tubes ending in tiny balloon-like structures called Alveoli. Alveoli provide an extensive, ultra-thin moist surface lined with an extensive network of blood capillaries for rapid gaseous exchange between oxygen and carbon dioxide.",
     keywords: ["lungs", "alveoli", "respiratory", "capillaries", "gas exchange", "oxygen", "co2", "breathing"],
   },
+  {
+    id: "chunk_10",
+    chapter: "NCERT Class 10 Science - Chapter 2: Acids, Bases and Salts",
+    page: 18,
+    section: "Common Salt (Sodium Chloride - NaCl) & Chemical Properties",
+    text: "Sodium Chloride (NaCl), commonly known as table salt or common salt, is formed by the neutralization reaction between Hydrochloric Acid (HCl) and Sodium Hydroxide (NaOH): HCl + NaOH ---> NaCl + H2O. It is an essential raw material for producing chemicals like Sodium Hydroxide (caustic soda), Baking Soda (NaHCO3), Washing Soda (Na2CO3.10H2O), and Bleaching Powder (CaOCl2). In living organisms, sodium ions are vital for nerve impulse transmission and electrolyte balance.",
+    keywords: ["nacl", "sodium chloride", "salt", "common salt", "neutralization", "naoh", "hcl", "table salt", "acids", "bases", "salts"],
+  },
+  {
+    id: "chunk_11",
+    chapter: "NCERT Class 10 Science - Chapter 13: Magnetic Effects of Electric Current",
+    page: 224,
+    section: "Magnetism, Magnetic Field & Field Lines",
+    text: "Magnetism is a fundamental physical force mediated by magnetic fields. A magnet produces a region of influence around itself called a Magnetic Field. Hans Christian Oersted in 1820 discovered that an electric current carrying wire produces an associated magnetic field around it. Magnetic field lines emerge from the North pole and merge at the South pole outside the magnet, forming continuous closed loops.",
+    keywords: ["magnetism", "magnet", "magnetic field", "magnetic", "field lines", "north pole", "south pole", "oersted", "electric current", "electromagnetism"],
+  },
+  {
+    id: "chunk_12",
+    chapter: "NCERT Class 10 Science - Chapter 1: Chemical Reactions and Equations",
+    page: 6,
+    section: "Chemical Equations, Balancing & Types of Reactions",
+    text: "A chemical reaction involves chemical change where reactants transform into new products with different properties. Chemical reactions are represented by balanced chemical equations where the number of atoms of each element remains conserved according to the Law of Conservation of Mass. Major types include Combination, Decomposition, Displacement, Double Displacement, and Redox (Oxidation-Reduction) reactions.",
+    keywords: ["chemical reaction", "chemical reactions", "equations", "reactants", "products", "oxidation", "reduction", "displacement", "balancing"],
+  },
 ];
 
-export function retrieveRelevantPassages(query: string, topK: number = 3): { chunk: TextbookChunk; score: number }[] {
+export function retrieveRelevantPassages(query: string, topK: number = 3): { chunk: TextbookChunk; score: number; isRelevant: boolean }[] {
   const qTokens = query.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
 
   const scored = TEXTBOOK_CHUNKS.map((chunk) => {
@@ -225,13 +249,14 @@ export function retrieveRelevantPassages(query: string, topK: number = 3): { chu
     const secLower = chunk.section.toLowerCase();
 
     for (const token of qTokens) {
-      if (token.length < 3) continue;
-      if (secLower.includes(token)) score += 3.0;
-      if (textLower.includes(token)) score += 1.5;
-      if (chunk.keywords.some((kw) => kw.includes(token))) score += 2.5;
+      if (token.length < 2) continue;
+      // Exact word match
+      if (secLower.includes(token)) score += 4.0;
+      if (textLower.includes(token)) score += 2.0;
+      if (chunk.keywords.some((kw) => kw.toLowerCase() === token || kw.toLowerCase().includes(token))) score += 5.0;
     }
 
-    return { chunk, score };
+    return { chunk, score, isRelevant: score > 0 };
   });
 
   scored.sort((a, b) => b.score - a.score);

@@ -12,86 +12,112 @@ export async function POST(req: NextRequest) {
 
     // Retrieve top grounded textbook passages
     const retrieved = retrieveRelevantPassages(query, 3);
+    const hasMatch = retrieved.length > 0 && retrieved[0].score > 0;
     const topPassages = retrieved.map((r) => r.chunk);
+    const topChunk = topPassages[0];
+
     const contextText = topPassages
-      .map((p, i) => `[Source ${i + 1} - Page ${p.page}]: ${p.text}`)
+      .map((p, i) => `[Source ${i + 1} - ${p.chapter} - Page ${p.page}]:\n${p.text}`)
       .join("\n\n");
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    
+    // Ordered candidate models (gemini-3.5-flash-lite has active free quota)
+    const candidateModels = [
+      process.env.GEMINI_MODEL,
+      "gemini-3.5-flash-lite",
+      "gemini-3.5-flash",
+      "gemini-3.8-flash",
+    ].filter(Boolean) as string[];
 
     let answer = "";
+    let callSucceeded = false;
 
-    if (!apiKey) {
-      // Fallback response with strict grounding from textbook if no API key set
-      answer = `Based on NCERT Class 10 Biology [Page ${topPassages[0]?.page || 1}]:\n\n${topPassages[0]?.text || "Please refer to Chapter 6 Life Processes for details."}`;
+    let promptInstruction = "";
+    if (actionType === "simpler") {
+      promptInstruction = "Explain this concept in very simple, easy-to-understand terms suitable for a 5th-grade student. Use clear analogies.";
+    } else if (actionType === "example") {
+      promptInstruction = "Provide an intuitive, everyday real-world example from daily life in India to illustrate this concept.";
     } else {
-      let promptInstruction = "";
-      if (actionType === "simpler") {
-        promptInstruction = "Explain this concept in very simple, easy-to-understand terms suitable for a 5th-grade student. Use clear analogies.";
-      } else if (actionType === "example") {
-        promptInstruction = "Provide an intuitive, everyday real-world example from daily life in India to illustrate this concept.";
-      } else {
-        promptInstruction = "Provide a clear, engaging explanation strictly grounded in the provided textbook passages.";
-      }
+      promptInstruction = "Provide a clear, engaging explanation tailored for a school learner.";
+    }
 
-      const systemPrompt = `You are VidyaVaani (ವಿಧ್ಯಾವಾಣಿ / विद्यावाणी), a compassionate, voice-first AI tutor for Indian school students.
-You must teach strictly based on the following NCERT textbook passages:
+    const systemPrompt = `You are VidyaVaani (ವಿಧ್ಯಾವಾಣಿ / विद्यावाणी), a compassionate, voice-first AI tutor for Indian school students.
+Context from NCERT Science textbooks:
 ${contextText}
 
-Guidelines:
-1. Grounding: Answer ONLY using facts from the textbook passages above. Never hallucinate.
-2. Citations: Explicitly cite the textbook page number in your answer (e.g. [Page ${topPassages[0]?.page || 1}]).
+Instructions:
+1. Grounding & Accuracy: If the question relates to the textbook passages above, answer directly and cite the page number (e.g. [Page ${topChunk?.page || 1}]).
+2. Out-of-Passage Questions: If the question asks about a science topic like NaCl, chemistry, or physics that is in another chapter or not fully detailed above, answer accurately and explain which science chapter covers it.
 3. Language: Respond in ${language}. Maintain a warm, encouraging teacher's tone.
 4. Action: ${promptInstruction}
-5. Voice-Readiness: Keep explanations clear, natural to speak aloud, and structured.`;
+5. Voice-Readiness: Keep explanations clear, natural to speak aloud, and well-structured.`;
 
-      // Direct Gemini REST call (lightning fast on Vercel serverless)
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      const payload = {
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: systemPrompt },
-              { text: `Student Question: ${query}` }
-            ]
+    // Try candidate models in order
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const payload = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: systemPrompt },
+                { text: `Student Question: ${query}` },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.25,
+            maxOutputTokens: 800,
+          },
+        };
+
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          const generated = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (generated && generated.trim().length > 0) {
+            answer = generated.trim();
+            callSucceeded = true;
+            break;
           }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 800
+        } else {
+          const err = await resp.text();
+          console.warn(`Model ${model} failed:`, err);
         }
-      };
+      } catch (e) {
+        console.warn(`Error with model ${model}:`, e);
+      }
+    }
 
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (!resp.ok) {
-        const errText = await resp.text();
-        console.error("Gemini API error:", errText);
-        // Fallback to grounded textbook excerpt
-        answer = `According to your NCERT Textbook [Page ${topPassages[0]?.page || 1}]:\n\n${topPassages[0]?.text}`;
+    // Intelligent Fallback only if all Gemini models failed
+    if (!callSucceeded || !answer) {
+      if (hasMatch) {
+        answer = `According to your NCERT Textbook [Page ${topChunk.page} - ${topChunk.section}]:\n\n${topChunk.text}`;
       } else {
-        const data = await resp.json();
-        answer = data.candidates?.[0]?.content?.parts?.[0]?.text || `[Page ${topPassages[0]?.page || 1}] ${topPassages[0]?.text}`;
+        answer = `This topic ("${query}") is not found in Chapter 6: Life Processes. Life Processes covers Photosynthesis, Digestion, Respiration, and Gas Exchange. You can ask about Photosynthesis, Stomach HCl, Respiration, or select an option from the suggestions below!`;
       }
     }
 
     return NextResponse.json({
       answer,
-      sources: topPassages.map((p) => ({
-        id: p.id,
-        page: p.page,
-        section: p.section,
-        text: p.text
-      })),
+      sources: hasMatch
+        ? topPassages.map((p) => ({
+            id: p.id,
+            page: p.page,
+            section: p.section,
+            text: p.text,
+          }))
+        : [],
       language,
       query,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
     console.error("Chat API error:", error);

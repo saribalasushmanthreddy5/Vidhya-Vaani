@@ -7,7 +7,12 @@ export async function POST(req: NextRequest) {
     const { language = "English" } = body;
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const candidateModels = [
+      process.env.GEMINI_MODEL,
+      "gemini-3.5-flash-lite",
+      "gemini-3.5-flash",
+      "gemini-3.8-flash",
+    ].filter(Boolean) as string[];
 
     const defaultQuiz = [
       {
@@ -62,10 +67,6 @@ export async function POST(req: NextRequest) {
       }
     ];
 
-    if (!apiKey) {
-      return NextResponse.json({ quiz: defaultQuiz });
-    }
-
     const contextSample = TEXTBOOK_CHUNKS.map(c => `[Page ${c.page}]: ${c.text}`).join("\n\n");
     const prompt = `Based ONLY on the following textbook excerpts:
 ${contextSample}
@@ -78,31 +79,31 @@ Format your response as a valid, pure JSON array without markdown code blocks, w
 - "explanation": string
 - "page": integer (the page number cited)`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3 }
-      })
-    });
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.3 }
+          })
+        });
 
-    if (!resp.ok) {
-      return NextResponse.json({ quiz: defaultQuiz });
-    }
+        if (resp.ok) {
+          const data = await resp.json();
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
 
-    const data = await resp.json();
-    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    const cleanJson = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-
-    try {
-      const parsed = JSON.parse(cleanJson);
-      if (Array.isArray(parsed) && parsed.length >= 3) {
-        return NextResponse.json({ quiz: parsed });
+          const parsed = JSON.parse(cleanJson);
+          if (Array.isArray(parsed) && parsed.length >= 3) {
+            return NextResponse.json({ quiz: parsed });
+          }
+        }
+      } catch {
+        // Continue to next model
       }
-    } catch {
-      // Fallback
     }
 
     return NextResponse.json({ quiz: defaultQuiz });
