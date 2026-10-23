@@ -1,0 +1,13 @@
+streamlit>=1.66.0
+pymupdf>=1.28.2
+sentence-transformers>=6.1.0
+faiss-cpu>=1.15.1
+google-genai>=2.31.0
+groq>=1.7.0
+edge-tts>=7.3.1
+gTTS>=2.5.4
+streamlit-mic-recorder>=0.0.8
+python-dotenv>=1.2.4
+pandas>=3.0.6
+altair>=6.3.0
+numpy>=2.5.4
