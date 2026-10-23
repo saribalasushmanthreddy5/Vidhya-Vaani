@@ -43,20 +43,26 @@ Built for hackathons, educational equity, and first-generation school students w
 
 | Component | Technology |
 |---|---|
-| **Frontend** | Streamlit |
+| **Frontend** | Next.js 14 (App Router, React 18, Synapse SuperDesign UI) |
+| **Deployment** | Vercel Edge Serverless |
 | **PDF Extraction & Chunking** | PyMuPDF (`fitz`) |
-| **Embeddings** | `sentence-transformers` (`paraphrase-multilingual-MiniLM-L12-v2`) |
-| **Vector Index** | FAISS (`faiss-cpu`) |
-| **LLM Reasoning** | Google Gemini (`gemini-1.5-flash`) via `google-generativeai` |
-| **Voice Synthesis** | `edge-tts` (Regional Indian Neural Voices) |
-| **Database** | Built-in Python `sqlite3` |
+| **Embeddings & Retrieval** | `sentence-transformers` & Dense Cosine Vector Space |
+| **LLM Reasoning** | Google Gemini 3.8 Flash |
+| **Voice Synthesis** | Microsoft Azure / Browser Neural Regional Voices (9 Dialects) |
+| **Database & Auditing** | SQLite Interaction & Quiz Mastery Logs |
 
 ---
 
-## 🚀 Quickstart & Run Instructions
+## 🚀 Vercel Deployment Instructions
 
-### 1. Prerequisites
-Ensure Python 3.10 or 3.11 is installed.
+1. Push this repository to GitHub:
+   ```bash
+   git push origin main
+   ```
+2. Go to **[vercel.com/new](https://vercel.com/new)** and import your GitHub repository.
+3. In **Environment Variables**, add:
+   * `GEMINI_API_KEY`: Your Google Gemini API key
+4. Click **Deploy**! Vercel automatically detects Next.js at the root and deploys your application globally.
 
 ### 2. Install Dependencies
 ```bash
