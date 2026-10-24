@@ -55,6 +55,7 @@ html, body {
   background: linear-gradient(90deg, #A78BFA 0%, #FFFFFF 35%, #FFFFFF 65%, #22D3EE 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: textShimmer 4s linear infinite;
   font-style: italic;
@@ -79,8 +80,8 @@ html, body {
   width: 100%;
   max-width: 680px;
   background: rgba(10, 10, 10, 0.78);
-  backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
   padding: 8px 18px;

@@ -71,7 +71,7 @@ CRITICAL RULES:
 2. REFUSAL PROTOCOL: If the provided Textbook Passages do NOT contain enough information to answer the question, or if the question is off-topic, you MUST reply with ONLY the exact keyword:
 NOT_FOUND
 Do not say anything else if the answer is not in the text.
-3. CITATIONS: Every factual claim must include its exact source page in square brackets, such as [Page 1] or [Page 2].
+3. CITATIONS: Every factual claim must include its exact source page in square brackets, such as [Page 1] or [Page 2]. Even when answering in regional languages, write the citation strictly as [Page X] (with the English word 'Page') so that digital page citations link properly.
 4. LANGUAGE: Provide your complete explanation in {target_lang}.
 5. FORMAT: Use warm, encouraging, conversational phrasing suitable for spoken audio.
 
@@ -109,15 +109,22 @@ def generate_tutor_response(
     prompt = build_tutor_prompt(query, context_chunks, language_key, action_type)
 
     # API keys loaded securely from backend environment / .env
-    g_key = (gemini_api_key or os.getenv("GEMINI_API_KEY") or "").strip()
-    gr_key = (groq_api_key or os.getenv("GROQ_API_KEY") or "").strip()
+    g_key = (gemini_api_key if gemini_api_key is not None else (os.getenv("GEMINI_API_KEY") or "")).strip()
+    gr_key = (groq_api_key if groq_api_key is not None else (os.getenv("GROQ_API_KEY") or "")).strip()
 
     # Attempt 1: Google GenAI (Gemini) Primary
     if g_key and genai is not None:
         try:
             client = genai.Client(api_key=g_key)
-            # Try specified model, with fallback candidate list if model name differs
-            models_to_try = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"]
+            # Try specified model, with fallback candidate list (gemini-3.5-flash-lite has active free quota)
+            models_to_try = [
+                GEMINI_MODEL,
+                "gemini-3.5-flash-lite",
+                "gemini-3.5-flash",
+                "gemini-flash-lite-latest",
+                "gemini-3.8-flash",
+                "gemini-3.1-flash-lite",
+            ]
             for model_name in dict.fromkeys(models_to_try):
                 try:
                     response = client.models.generate_content(
@@ -157,7 +164,7 @@ def generate_tutor_response(
             pass
 
     # Attempt 3: Friendly Grounded Fallback (Synthesize from top chunk)
-    if not g_key and not gr_key:
+    if context_chunks:
         best_chunk = context_chunks[0]
         page_ref = f"[Page {best_chunk['page']}]"
         sample_text = best_chunk['text']

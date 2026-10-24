@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { LANGUAGES, getCuratedPrompts, TextbookChunk } from "@/lib/textbookData";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { LANGUAGES, getCuratedPrompts, TextbookChunk, getRandomizedCuratedQuiz } from "@/lib/textbookData";
 
 export default function VidyaVaaniApp() {
   const [activeTab, setActiveTab] = useState<"ask" | "quiz" | "library" | "analytics">("ask");
@@ -187,29 +187,43 @@ export default function VidyaVaaniApp() {
   };
 
   // Load Quiz Questions
-  const loadQuiz = async () => {
+  const loadQuiz = useCallback(async () => {
     setIsLoadingQuiz(true);
     setQuizSubmitted(false);
     setQuizAnswers({});
 
     try {
-      const resp = await fetch("/api/quiz", {
+      const resp = await fetch(`/api/quiz?t=${Date.now()}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language: selectedLanguage }),
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache"
+        },
+        body: JSON.stringify({
+          language: selectedLanguage,
+          seed: `${Date.now()}_${Math.random().toString(36).substring(7)}`
+        }),
       });
       const data = await resp.json();
-      setQuizQuestions(data.quiz || []);
+      if (Array.isArray(data.quiz) && data.quiz.length >= 3) {
+        setQuizQuestions(data.quiz);
+      } else {
+        setQuizQuestions(getRandomizedCuratedQuiz());
+      }
+      setStatusNotification("Generated a fresh set of practice questions! 📝");
     } catch (err) {
-      console.error(err);
+      console.warn("Quiz API fallback to dynamic randomized bank:", err);
+      setQuizQuestions(getRandomizedCuratedQuiz());
+      setStatusNotification("Generated a fresh set of practice questions! 📝");
     } finally {
       setIsLoadingQuiz(false);
     }
-  };
+  }, [selectedLanguage]);
 
   useEffect(() => {
     loadQuiz();
-  }, [selectedLanguage]);
+  }, [loadQuiz]);
 
   const handleSelectQuizOption = (qIdx: number, optIdx: number) => {
     if (quizSubmitted) return;

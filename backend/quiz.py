@@ -102,14 +102,21 @@ Example JSON Structure:
 
 def _invoke_llm_for_quiz(prompt: str, gemini_api_key: Optional[str] = None, groq_api_key: Optional[str] = None) -> Optional[str]:
     """Helper to query Gemini or Groq for raw quiz text."""
-    g_key = (gemini_api_key or os.getenv("GEMINI_API_KEY") or "").strip()
-    gr_key = (groq_api_key or os.getenv("GROQ_API_KEY") or "").strip()
+    g_key = (gemini_api_key if gemini_api_key is not None else (os.getenv("GEMINI_API_KEY") or "")).strip()
+    gr_key = (groq_api_key if groq_api_key is not None else (os.getenv("GROQ_API_KEY") or "")).strip()
 
     # Try Gemini
     if g_key and genai is not None:
         try:
             client = genai.Client(api_key=g_key)
-            models = [GEMINI_MODEL, "gemini-3.8-flash", "gemini-2.5-flash", "gemini-1.5-flash", "gemini-2.0-flash"]
+            models = [
+                GEMINI_MODEL,
+                "gemini-3.5-flash-lite",
+                "gemini-3.5-flash",
+                "gemini-flash-lite-latest",
+                "gemini-3.8-flash",
+                "gemini-3.1-flash-lite",
+            ]
             for m in dict.fromkeys(models):
                 try:
                     res = client.models.generate_content(model=m, contents=prompt)

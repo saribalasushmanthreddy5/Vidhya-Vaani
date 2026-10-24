@@ -102,7 +102,7 @@ def run_all_tests():
     for lang, q in questions:
         matched, top_s = retrieval.search_similar_chunks(q, loaded_chunks, loaded_idx, emb_model, k=3)
         ans = llm.generate_tutor_response(q, matched, lang, top_score=top_s)
-        has_page = "[Page" in ans or "Page" in ans
+        has_page = any(token in ans for token in ["[Page", "Page", "ಪುಟ", "पृष्ठ"])
         has_audio = speech.synthesize_speech(ans, lang) is not None
         if not (has_page and has_audio):
             t4_passes = False

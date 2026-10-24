@@ -28,7 +28,7 @@ INDEX_DIR.mkdir(parents=True, exist_ok=True)
 # MODELS & PARAMETERS (Server-Side Backend)
 # ==========================================
 # Primary LLM via google-genai
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 # Fallback LLM via groq
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
