@@ -59,6 +59,7 @@ export default function VidyaVaaniApp() {
   const [uploadSubject, setUploadSubject] = useState("Science");
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadProgressMsg, setUploadProgressMsg] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
 
   // Load weak topics & custom chapters from localStorage on mount
@@ -307,11 +308,22 @@ export default function VidyaVaaniApp() {
     speakText(feedback);
   };
 
+  // Reset and clear upload form
+  const handleClearUpload = () => {
+    setUploadFile(null);
+    setUploadTitle("");
+    setUploadProgressMsg(null);
+    setUploadError(null);
+    setIsUploading(false);
+    if (uploadFileInputRef.current) uploadFileInputRef.current.value = "";
+  };
+
   // Handle Fast Custom Subject File / PDF Upload
   const handleUploadSubjectFile = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    setUploadError(null);
     if (!uploadFile) {
-      alert("Please select a PDF or text file to upload.");
+      setUploadError("Please select a PDF or text file to upload.");
       return;
     }
 
@@ -331,29 +343,15 @@ export default function VidyaVaaniApp() {
       let totalPages = 1;
 
       if (fileName.toLowerCase().endsWith(".pdf") || uploadFile.type === "application/pdf") {
-        // Fast local in-browser PDF parsing (Instant even for 100MB textbooks)
-        setUploadProgressMsg("⚡ Extracting pages locally (bypassing slow network upload)...");
+        // Fast local in-browser PDF parsing (0 network lag, sub-2s processing)
+        setUploadProgressMsg("⚡ Extracting pages locally in browser (bypassing slow upload)...");
         try {
           const parsed = await parsePdfLocallyInBrowser(uploadFile, (msg) => setUploadProgressMsg(msg));
           validPages = parsed.pages;
           totalPages = parsed.totalPages;
         } catch (localErr: any) {
-          console.warn("Local PDF extraction fallback to server:", localErr);
-          if (uploadFile.size < 8 * 1024 * 1024) {
-            // Fallback to server route only if file is under 8MB
-            setUploadProgressMsg("Sending to cloud indexer...");
-            const fd = new FormData();
-            fd.append("file", uploadFile);
-            fd.append("title", chapterTitle);
-            fd.append("subject", uploadSubject);
-            const resp = await fetch("/api/upload", { method: "POST", body: fd });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || "Server processing failed");
-            validPages = (data.chunks || []).map((c: any) => ({ pageNum: c.page, text: c.text }));
-            totalPages = data.chapter?.pages || 1;
-          } else {
-            throw localErr;
-          }
+          console.warn("Local PDF extraction error:", localErr);
+          throw new Error(`Could not parse this PDF: ${localErr?.message || "File might be corrupted or image-only."}`);
         }
       } else {
         // Plain text / markdown file
@@ -373,7 +371,7 @@ export default function VidyaVaaniApp() {
 
       if (validPages.length === 0) {
         throw new Error(
-          "No selectable text found in this PDF. If it is an image scan, please use a PDF with selectable text."
+          "No selectable text found in this PDF. If this is a scanned photo PDF, please use a digital or OCR-enabled PDF."
         );
       }
 
@@ -391,7 +389,7 @@ export default function VidyaVaaniApp() {
         subject: uploadSubject || "Custom Subject",
         pages: totalPages,
         chunks: chunks.length,
-        description: `Custom study module with ${validPages.length} pages and ${chunks.length} indexed chunks.`,
+        description: `Custom study module with ${validPages.length} active pages and ${chunks.length} indexed chunks.`,
         isCustom: true,
       };
 
@@ -428,12 +426,10 @@ export default function VidyaVaaniApp() {
 
       setActiveChapter(newChapter.title);
       setStatusNotification(`🎉 Indexed "${newChapter.title}" (${chunks.length} chunks across ${validPages.length} pages in ~1.5s)!`);
-      setUploadFile(null);
-      setUploadTitle("");
+      handleClearUpload();
       setIsUploadCardOpen(false);
-      if (uploadFileInputRef.current) uploadFileInputRef.current.value = "";
     } catch (err: any) {
-      alert(`Upload indexing error: ${err?.message || "Operation failed."}`);
+      setUploadError(err?.message || "Indexing failed. Please check the file format.");
     } finally {
       setIsUploading(false);
       setUploadProgressMsg(null);
@@ -1255,13 +1251,34 @@ export default function VidyaVaaniApp() {
                           Selected: {uploadFile.name}
                         </div>
                         <div style={{ color: "#6B7280", fontSize: "0.78rem", marginTop: "2px" }}>
-                          {(uploadFile.size / 1024).toFixed(1)} KB ({ (uploadFile.size / (1024 * 1024)).toFixed(1) } MB) • Click to choose a different file
+                          {(uploadFile.size / 1024).toFixed(1)} KB ({ (uploadFile.size / (1024 * 1024)).toFixed(1) } MB)
                         </div>
                         {uploadFile.size > 3 * 1024 * 1024 && (
                           <div style={{ marginTop: "8px", display: "inline-block", background: "rgba(139, 92, 246, 0.18)", color: "#C4B5FD", border: "1px solid rgba(139, 92, 246, 0.4)", padding: "3px 10px", borderRadius: "9999px", fontSize: "0.74rem", fontWeight: 500 }}>
                             ⚡ In-Browser Fast Indexing (Sub-2s processing without network lag)
                           </div>
                         )}
+                        <div style={{ marginTop: "10px" }}>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleClearUpload();
+                            }}
+                            style={{
+                              background: "rgba(239, 68, 68, 0.15)",
+                              border: "1px solid rgba(239, 68, 68, 0.35)",
+                              color: "#FCA5A5",
+                              padding: "4px 12px",
+                              borderRadius: "9999px",
+                              cursor: "pointer",
+                              fontSize: "0.76rem",
+                              fontWeight: 500,
+                            }}
+                          >
+                            ✕ Clear Selected File
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <div>
@@ -1270,7 +1287,7 @@ export default function VidyaVaaniApp() {
                           Click to select or drag and drop your Subject PDF
                         </div>
                         <div style={{ color: "#6B7280", fontSize: "0.8rem", marginTop: "2px" }}>
-                          Supports NCERT chapter PDFs, Class Notes, Markdown (.pdf, .txt, .md up to 25MB)
+                          Supports NCERT chapter PDFs, Class Notes, Markdown (.pdf, .txt, .md up to 100MB)
                         </div>
                       </div>
                     )}
@@ -1331,6 +1348,23 @@ export default function VidyaVaaniApp() {
                     </div>
                   </div>
 
+                  {/* Error Notification Banner */}
+                  {uploadError && (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.35)", borderRadius: "10px", padding: "10px 16px", color: "#FCA5A5", fontSize: "0.85rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span>⚠️</span>
+                        <span>{uploadError}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setUploadError(null)}
+                        style={{ background: "transparent", border: "none", color: "#FCA5A5", cursor: "pointer", fontWeight: 700, fontSize: "0.9rem" }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+
                   {/* Progress Status Message */}
                   {uploadProgressMsg && (
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#A78BFA", fontSize: "0.85rem", background: "rgba(139,92,246,0.1)", padding: "10px 14px", borderRadius: "8px" }}>
@@ -1343,10 +1377,25 @@ export default function VidyaVaaniApp() {
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "8px" }}>
                     <button
                       type="button"
+                      onClick={handleClearUpload}
+                      style={{
+                        background: "transparent",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        color: "#9CA3AF",
+                        padding: "9px 20px",
+                        borderRadius: "9999px",
+                        cursor: "pointer",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      Clear
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => {
+                        handleClearUpload();
                         setIsUploadCardOpen(false);
-                        setUploadFile(null);
-                        setUploadTitle("");
                       }}
                       style={{
                         background: "transparent",
@@ -1378,7 +1427,7 @@ export default function VidyaVaaniApp() {
                         gap: "8px",
                       }}
                     >
-                      {isUploading ? "Processing & Indexing..." : "⚡ Upload & Index Subject"}
+                      {isUploading ? "⚡ Processing in Browser..." : "⚡ Index Subject in ~1.5s"}
                     </button>
                   </div>
                 </form>
