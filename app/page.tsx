@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { LANGUAGES, getCuratedPrompts, TextbookChunk, getRandomizedCuratedQuiz } from "@/lib/textbookData";
+import { LANGUAGES, getCuratedPrompts, TextbookChunk, getRandomizedCuratedQuiz, CHAPTERS } from "@/lib/textbookData";
 
 export default function VidyaVaaniApp() {
   const [activeTab, setActiveTab] = useState<"ask" | "quiz" | "library" | "analytics">("ask");
@@ -62,7 +62,7 @@ export default function VidyaVaaniApp() {
   }, []);
 
   const langMeta = LANGUAGES[selectedLanguage] || LANGUAGES["English"];
-  const curatedPills = getCuratedPrompts(selectedLanguage);
+  const curatedPills = getCuratedPrompts(selectedLanguage, activeChapter);
 
   // Web Speech Synthesis for Real-time Regional Voice
   const speakText = (text: string) => {
@@ -157,6 +157,7 @@ export default function VidyaVaaniApp() {
         body: JSON.stringify({
           query: effectiveQuery,
           language: selectedLanguage,
+          chapter: activeChapter,
           actionType,
           imageBase64: photoBase64,
         }),
@@ -202,6 +203,7 @@ export default function VidyaVaaniApp() {
         },
         body: JSON.stringify({
           language: selectedLanguage,
+          chapter: activeChapter,
           seed: `${Date.now()}_${Math.random().toString(36).substring(7)}`
         }),
       });
@@ -209,17 +211,17 @@ export default function VidyaVaaniApp() {
       if (Array.isArray(data.quiz) && data.quiz.length >= 3) {
         setQuizQuestions(data.quiz);
       } else {
-        setQuizQuestions(getRandomizedCuratedQuiz());
+        setQuizQuestions(getRandomizedCuratedQuiz(activeChapter));
       }
-      setStatusNotification("Generated a fresh set of practice questions! 📝");
+      setStatusNotification(`Generated a fresh practice quiz for ${activeChapter.split(":")[1] || activeChapter}! 📝`);
     } catch (err) {
       console.warn("Quiz API fallback to dynamic randomized bank:", err);
-      setQuizQuestions(getRandomizedCuratedQuiz());
-      setStatusNotification("Generated a fresh set of practice questions! 📝");
+      setQuizQuestions(getRandomizedCuratedQuiz(activeChapter));
+      setStatusNotification(`Generated a fresh practice quiz for ${activeChapter.split(":")[1] || activeChapter}! 📝`);
     } finally {
       setIsLoadingQuiz(false);
     }
-  }, [selectedLanguage]);
+  }, [selectedLanguage, activeChapter]);
 
   useEffect(() => {
     loadQuiz();
@@ -971,56 +973,62 @@ export default function VidyaVaaniApp() {
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {[
-                { title: "NCERT Class 10 Biology: Life Processes", pages: 4, chunks: 9, active: true },
-                { title: "NCERT Class 10 Chemistry: Chemical Reactions & Equations", pages: 5, chunks: 11, active: false },
-                { title: "NCERT Class 10 Physics: Light - Reflection and Refraction", pages: 6, chunks: 14, active: false },
-              ].map((sub, i) => (
-                <div
-                  key={i}
-                  style={{
-                    background: "#0C0C0E",
-                    border: sub.active ? "1px solid rgba(16, 185, 129, 0.35)" : "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: "18px",
-                    padding: "20px 24px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontSize: "1.1rem", color: "#FFFFFF", fontWeight: 500 }}>{sub.title}</span>
-                      {sub.active && (
-                        <span style={{ fontSize: "0.72rem", background: "rgba(16,185,129,0.2)", color: "#10B981", padding: "2px 8px", borderRadius: "9999px" }}>
-                          Active
-                        </span>
-                      )}
-                    </div>
-                    <div style={{ color: "#6B7280", fontSize: "0.82rem", marginTop: "4px" }}>
-                      {sub.pages} Pages • {sub.chunks} Indexed Chunks • Dense Cosine Vector Space
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setActiveChapter(sub.title);
-                      setStatusNotification(`Loaded chapter: ${sub.title}`);
-                    }}
+              {CHAPTERS.map((sub) => {
+                const isActive = activeChapter === sub.title;
+                return (
+                  <div
+                    key={sub.id}
                     style={{
-                      background: sub.active ? "rgba(16,185,129,0.15)" : "#18181B",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: sub.active ? "#10B981" : "#FFFFFF",
-                      padding: "8px 18px",
-                      borderRadius: "9999px",
-                      cursor: "pointer",
-                      fontSize: "0.85rem",
+                      background: "#0C0C0E",
+                      border: isActive ? "1px solid rgba(16, 185, 129, 0.45)" : "1px solid rgba(255,255,255,0.06)",
+                      boxShadow: isActive ? "0 0 24px rgba(16, 185, 129, 0.12)" : "none",
+                      borderRadius: "18px",
+                      padding: "20px 24px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      transition: "all 0.2s ease",
                     }}
                   >
-                    {sub.active ? "✓ Loaded" : "Load Chapter"}
-                  </button>
-                </div>
-              ))}
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <span style={{ fontSize: "1.1rem", color: "#FFFFFF", fontWeight: 500 }}>{sub.title}</span>
+                        {isActive && (
+                          <span style={{ fontSize: "0.72rem", background: "rgba(16,185,129,0.2)", color: "#10B981", border: "1px solid rgba(16,185,129,0.4)", padding: "2px 8px", borderRadius: "9999px", fontWeight: 600 }}>
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ color: "#6B7280", fontSize: "0.82rem", marginTop: "4px" }}>
+                        {sub.pages} Pages • {sub.chunks} Indexed Chunks • Dense Cosine Vector Space
+                      </div>
+                      <div style={{ color: "#9CA3AF", fontSize: "0.78rem", marginTop: "4px", fontStyle: "italic" }}>
+                        {sub.description}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setActiveChapter(sub.title);
+                        setStatusNotification(`✨ Active chapter switched to: ${sub.title}`);
+                      }}
+                      style={{
+                        background: isActive ? "rgba(16,185,129,0.18)" : "#18181B",
+                        border: isActive ? "1px solid #10B981" : "1px solid rgba(255,255,255,0.1)",
+                        color: isActive ? "#10B981" : "#FFFFFF",
+                        padding: "8px 18px",
+                        borderRadius: "9999px",
+                        cursor: "pointer",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      {isActive ? "✓ Loaded" : "Load Chapter"}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

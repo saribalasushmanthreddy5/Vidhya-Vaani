@@ -4,7 +4,7 @@ import { retrieveRelevantPassages, LANGUAGES } from "@/lib/textbookData";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { query, language = "English", actionType = "normal", imageBase64, imageMimeType = "image/jpeg" } = body;
+    const { query, language = "English", chapter = "NCERT Class 10 Biology: Life Processes", actionType = "normal", imageBase64, imageMimeType = "image/jpeg" } = body;
 
     if (!query && !imageBase64) {
       return NextResponse.json({ error: "Query or image is required" }, { status: 400 });
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const effectiveQuery = query || "Please read this textbook question and explain the answer step by step.";
 
     // Retrieve top grounded textbook passages
-    const retrieved = retrieveRelevantPassages(effectiveQuery, 3);
+    const retrieved = retrieveRelevantPassages(effectiveQuery, 3, chapter);
     const hasMatch = retrieved.length > 0 && retrieved[0].score > 0;
     const topPassages = retrieved.map((r) => r.chunk);
     const topChunk = topPassages[0];
@@ -45,13 +45,13 @@ export async function POST(req: NextRequest) {
     }
 
     const systemPrompt = `You are VidyaVaani (ವಿಧ್ಯಾವಾಣಿ / विद्यावाणी), a compassionate, voice-first AI tutor for Indian school students.
-Context from NCERT Class 10 Science textbook (Chapter: Life Processes):
+Context from NCERT Class 10 Science textbook (${chapter}):
 ${contextText}
 
 Strict Rules:
 1. Grounding & Accuracy: Answer using the provided textbook context whenever relevant. Always cite the exact page number (e.g. [Page ${topChunk?.page || 1}]).
 2. "I Don't Know" Fallback (Anti-Hallucination): If the student's question or image is completely outside this textbook chapter (e.g. sports, politics, unrelated subjects, or completely off-topic), you MUST politely refuse to answer, explaining in ${language}:
-   "I cannot find this topic in your textbook chapter (NCERT Class 10: Life Processes). To prevent incorrect or ungrounded explanations, please ask a question related to this chapter."
+   "I cannot find this topic in your textbook chapter (${chapter}). To prevent incorrect or ungrounded explanations, please ask a question related to this chapter."
 3. Multimodal: If an image of a textbook page or question is provided, extract the question from the image and solve it step-by-step grounded in NCERT concepts.
 4. Language: Respond fluently in ${language}. Maintain a warm, encouraging teacher's tone.
 5. Action: ${promptInstruction}
@@ -118,7 +118,7 @@ Strict Rules:
       if (hasMatch) {
         answer = `According to your NCERT Textbook [Page ${topChunk.page} - ${topChunk.section}]:\n\n${topChunk.text}`;
       } else {
-        answer = `I cannot find this topic in your textbook chapter (NCERT Class 10: Life Processes). To prevent incorrect or ungrounded explanations, please ask a question related to this chapter (such as Photosynthesis, Digestion, Respiration, or Excretion).`;
+        answer = `I cannot find this topic in your textbook chapter (${chapter}). To prevent incorrect or ungrounded explanations, please ask a question related to this chapter.`;
       }
     }
 
