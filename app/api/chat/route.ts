@@ -4,7 +4,15 @@ import { retrieveRelevantPassages, LANGUAGES } from "@/lib/textbookData";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { query, language = "English", chapter = "NCERT Class 10 Biology: Life Processes", actionType = "normal", imageBase64, imageMimeType = "image/jpeg" } = body;
+    const {
+      query,
+      language = "English",
+      chapter = "NCERT Class 10 Biology: Life Processes",
+      actionType = "normal",
+      imageBase64,
+      imageMimeType = "image/jpeg",
+      customChunks = [],
+    } = body;
 
     if (!query && !imageBase64) {
       return NextResponse.json({ error: "Query or image is required" }, { status: 400 });
@@ -12,8 +20,8 @@ export async function POST(req: NextRequest) {
 
     const effectiveQuery = query || "Please read this textbook question and explain the answer step by step.";
 
-    // Retrieve top grounded textbook passages
-    const retrieved = retrieveRelevantPassages(effectiveQuery, 3, chapter);
+    // Retrieve top grounded textbook passages (including any uploaded PDF chunks)
+    const retrieved = retrieveRelevantPassages(effectiveQuery, 3, chapter, customChunks);
     const hasMatch = retrieved.length > 0 && retrieved[0].score > 0;
     const topPassages = retrieved.map((r) => r.chunk);
     const topChunk = topPassages[0];

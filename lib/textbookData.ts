@@ -136,10 +136,11 @@ export interface ChapterInfo {
   id: string;
   title: string;
   shortName: string;
-  subject: "Biology" | "Chemistry" | "Physics";
+  subject: string;
   pages: number;
   chunks: number;
   description: string;
+  isCustom?: boolean;
 }
 
 export const CHAPTERS: ChapterInfo[] = [
@@ -366,19 +367,21 @@ export const TEXTBOOK_CHUNKS: TextbookChunk[] = [
 export function retrieveRelevantPassages(
   query: string,
   topK: number = 3,
-  chapterFilter?: string
+  chapterFilter?: string,
+  extraChunks?: TextbookChunk[]
 ): { chunk: TextbookChunk; score: number; isRelevant: boolean }[] {
+  const corpus = extraChunks && extraChunks.length > 0 ? [...extraChunks, ...TEXTBOOK_CHUNKS] : TEXTBOOK_CHUNKS;
   const qTokens = query.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
 
-  const scored = TEXTBOOK_CHUNKS.map((chunk) => {
+  const scored = corpus.map((chunk) => {
     let score = 0;
     const textLower = chunk.text.toLowerCase();
     const secLower = chunk.section.toLowerCase();
     const chapLower = chunk.chapter.toLowerCase();
 
     // Prioritize active chapter heavily if provided
-    if (chapterFilter && chapLower.includes(chapterFilter.toLowerCase())) {
-      score += 6.0;
+    if (chapterFilter && (chapLower.includes(chapterFilter.toLowerCase()) || chapterFilter.toLowerCase().includes(chapLower))) {
+      score += 8.0;
     }
 
     for (const token of qTokens) {

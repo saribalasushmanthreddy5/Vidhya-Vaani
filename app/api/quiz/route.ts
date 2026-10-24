@@ -7,7 +7,12 @@ export async function POST(req: NextRequest) {
   let requestedChapter = "NCERT Class 10 Biology: Life Processes";
   try {
     const body = await req.json().catch(() => ({}));
-    const { language = "English", chapter = "NCERT Class 10 Biology: Life Processes", seed = Date.now() } = body;
+    const {
+      language = "English",
+      chapter = "NCERT Class 10 Biology: Life Processes",
+      seed = Date.now(),
+      customChunks = [],
+    } = body;
     requestedChapter = chapter;
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -19,16 +24,21 @@ export async function POST(req: NextRequest) {
       "gemini-3.8-flash",
     ].filter(Boolean) as string[];
 
-    // Filter textbook chunks to the requested chapter, or fallback to all
-    const chapLower = chapter.toLowerCase();
-    let relevantChunks = TEXTBOOK_CHUNKS.filter((c) => {
-      const cLower = c.chapter.toLowerCase();
-      if (chapLower.includes("chem")) return cLower.includes("chem");
-      if (chapLower.includes("phys") || chapLower.includes("light")) return cLower.includes("phys") || cLower.includes("light");
-      if (chapLower.includes("bio") || chapLower.includes("life")) return cLower.includes("bio") || cLower.includes("life");
-      return cLower.includes(chapLower);
-    });
-    if (relevantChunks.length === 0) relevantChunks = TEXTBOOK_CHUNKS;
+    // If custom chunks provided from an uploaded PDF, prioritize them completely
+    let relevantChunks = Array.isArray(customChunks) && customChunks.length > 0 ? customChunks : [];
+
+    if (relevantChunks.length === 0) {
+      // Filter default textbook chunks to the requested chapter
+      const chapLower = chapter.toLowerCase();
+      relevantChunks = TEXTBOOK_CHUNKS.filter((c) => {
+        const cLower = c.chapter.toLowerCase();
+        if (chapLower.includes("chem")) return cLower.includes("chem");
+        if (chapLower.includes("phys") || chapLower.includes("light")) return cLower.includes("phys") || cLower.includes("light");
+        if (chapLower.includes("bio") || chapLower.includes("life")) return cLower.includes("bio") || cLower.includes("life");
+        return cLower.includes(chapLower);
+      });
+      if (relevantChunks.length === 0) relevantChunks = TEXTBOOK_CHUNKS;
+    }
 
     // Pick 4-5 random chunks from relevant chapter to inject fresh conceptual focus every time
     const shuffled = [...relevantChunks].sort(() => Math.random() - 0.5);

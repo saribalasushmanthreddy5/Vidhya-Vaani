@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { LANGUAGES, getCuratedPrompts, TextbookChunk, getRandomizedCuratedQuiz, CHAPTERS } from "@/lib/textbookData";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { LANGUAGES, getCuratedPrompts, TextbookChunk, getRandomizedCuratedQuiz, CHAPTERS, ChapterInfo } from "@/lib/textbookData";
 
 export default function VidyaVaaniApp() {
   const [activeTab, setActiveTab] = useState<"ask" | "quiz" | "library" | "analytics">("ask");
@@ -46,7 +46,21 @@ export default function VidyaVaaniApp() {
     { id: 3, query: "Role of HCl and pepsin in stomach", language: "Kannada", time: "25 mins ago" },
   ]);
 
-  // Load weak topics from localStorage on mount
+  // Custom Uploaded Chapters State (Persisted in localStorage)
+  const [customChapters, setCustomChapters] = useState<ChapterInfo[]>([]);
+  const [customChunksMap, setCustomChunksMap] = useState<Record<string, TextbookChunk[]>>({});
+  const [customPromptsMap, setCustomPromptsMap] = useState<Record<string, Array<{ label: string; query: string }>>>({});
+
+  // Subject File / PDF Upload State
+  const uploadFileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadSubject, setUploadSubject] = useState("Science");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadProgressMsg, setUploadProgressMsg] = useState<string | null>(null);
+  const [isUploadCardOpen, setIsUploadCardOpen] = useState(false);
+
+  // Load weak topics & custom chapters from localStorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem("vidyavaani_weak_topics");
@@ -56,13 +70,32 @@ export default function VidyaVaaniApp() {
           setWeakTopics(parsed);
         }
       }
+      const savedChaps = localStorage.getItem("vidyavaani_custom_chapters");
+      if (savedChaps) {
+        const parsed = JSON.parse(savedChaps);
+        if (Array.isArray(parsed)) setCustomChapters(parsed);
+      }
+      const savedChunks = localStorage.getItem("vidyavaani_custom_chunks");
+      if (savedChunks) {
+        const parsed = JSON.parse(savedChunks);
+        if (typeof parsed === "object" && parsed !== null) setCustomChunksMap(parsed);
+      }
+      const savedPrompts = localStorage.getItem("vidyavaani_custom_prompts");
+      if (savedPrompts) {
+        const parsed = JSON.parse(savedPrompts);
+        if (typeof parsed === "object" && parsed !== null) setCustomPromptsMap(parsed);
+      }
     } catch (e) {
-      console.warn("Could not load weak topics:", e);
+      console.warn("Could not load data from localStorage:", e);
     }
   }, []);
 
   const langMeta = LANGUAGES[selectedLanguage] || LANGUAGES["English"];
-  const curatedPills = getCuratedPrompts(selectedLanguage, activeChapter);
+  const activeCustomChunks = useMemo(() => customChunksMap[activeChapter] || [], [customChunksMap, activeChapter]);
+  const activeCustomPrompts = customPromptsMap[activeChapter];
+  const curatedPills = activeCustomPrompts && activeCustomPrompts.length > 0
+    ? activeCustomPrompts
+    : getCuratedPrompts(selectedLanguage, activeChapter);
 
   // Web Speech Synthesis for Real-time Regional Voice
   const speakText = (text: string) => {
@@ -160,6 +193,7 @@ export default function VidyaVaaniApp() {
           chapter: activeChapter,
           actionType,
           imageBase64: photoBase64,
+          customChunks: activeCustomChunks,
         }),
       });
 
@@ -199,12 +233,13 @@ export default function VidyaVaaniApp() {
         headers: {
           "Content-Type": "application/json",
           "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache"
+          "Pragma": "no-cache",
         },
         body: JSON.stringify({
           language: selectedLanguage,
           chapter: activeChapter,
-          seed: `${Date.now()}_${Math.random().toString(36).substring(7)}`
+          seed: `${Date.now()}_${Math.random().toString(36).substring(7)}`,
+          customChunks: activeCustomChunks,
         }),
       });
       const data = await resp.json();
@@ -221,7 +256,7 @@ export default function VidyaVaaniApp() {
     } finally {
       setIsLoadingQuiz(false);
     }
-  }, [selectedLanguage, activeChapter]);
+  }, [selectedLanguage, activeChapter, activeCustomChunks]);
 
   useEffect(() => {
     loadQuiz();
@@ -269,6 +304,89 @@ export default function VidyaVaaniApp() {
       ? `Great job! You scored ${score} out of ${quizQuestions.length}. You have demonstrated strong textbook mastery.`
       : `Quiz completed! You scored ${score} out of ${quizQuestions.length}. Please check the revision flashcards below to review your weak topics.`;
     speakText(feedback);
+  };
+
+  // Handle Custom Subject File / PDF Upload
+  const handleUploadSubjectFile = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!uploadFile) {
+      alert("Please select a PDF or text file to upload.");
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadProgressMsg("Extracting pages, slicing sections, and vectorizing chunks...");
+
+    try {
+      const fd = new FormData();
+      fd.append("file", uploadFile);
+      if (uploadTitle.trim()) fd.append("title", uploadTitle.trim());
+      if (uploadSubject.trim()) fd.append("subject", uploadSubject.trim());
+
+      const resp = await fetch("/api/upload", {
+        method: "POST",
+        body: fd,
+      });
+
+      const data = await resp.json();
+      if (!resp.ok) {
+        throw new Error(data.error || "Failed to process subject file");
+      }
+
+      const newChapter: ChapterInfo = data.chapter;
+      const newChunks: TextbookChunk[] = data.chunks || [];
+      const newPrompts = data.curatedPrompts || [];
+
+      const updatedChapters = [newChapter, ...customChapters.filter((c) => c.id !== newChapter.id)];
+      const updatedChunksMap = { ...customChunksMap, [newChapter.title]: newChunks };
+      const updatedPromptsMap = { ...customPromptsMap, [newChapter.title]: newPrompts };
+
+      setCustomChapters(updatedChapters);
+      setCustomChunksMap(updatedChunksMap);
+      setCustomPromptsMap(updatedPromptsMap);
+
+      localStorage.setItem("vidyavaani_custom_chapters", JSON.stringify(updatedChapters));
+      localStorage.setItem("vidyavaani_custom_chunks", JSON.stringify(updatedChunksMap));
+      localStorage.setItem("vidyavaani_custom_prompts", JSON.stringify(updatedPromptsMap));
+
+      setActiveChapter(newChapter.title);
+      setStatusNotification(`🎉 Successfully indexed "${newChapter.title}" (${newChunks.length} chunks across ${newChapter.pages} pages)!`);
+      setUploadFile(null);
+      setUploadTitle("");
+      setIsUploadCardOpen(false);
+      if (uploadFileInputRef.current) uploadFileInputRef.current.value = "";
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+      setUploadProgressMsg(null);
+    }
+  };
+
+  // Handle Remove Custom Subject
+  const handleDeleteCustomChapter = (chapId: string, chapTitle: string) => {
+    if (!confirm(`Are you sure you want to remove "${chapTitle}" from your subjects library?`)) return;
+
+    const updatedChapters = customChapters.filter((c) => c.id !== chapId);
+    const updatedChunksMap = { ...customChunksMap };
+    delete updatedChunksMap[chapTitle];
+    const updatedPromptsMap = { ...customPromptsMap };
+    delete updatedPromptsMap[chapTitle];
+
+    setCustomChapters(updatedChapters);
+    setCustomChunksMap(updatedChunksMap);
+    setCustomPromptsMap(updatedPromptsMap);
+
+    localStorage.setItem("vidyavaani_custom_chapters", JSON.stringify(updatedChapters));
+    localStorage.setItem("vidyavaani_custom_chunks", JSON.stringify(updatedChunksMap));
+    localStorage.setItem("vidyavaani_custom_prompts", JSON.stringify(updatedPromptsMap));
+
+    if (activeChapter === chapTitle) {
+      setActiveChapter("NCERT Class 10 Biology: Life Processes");
+      setStatusNotification("Switched back to NCERT Class 10 Biology: Life Processes.");
+    } else {
+      setStatusNotification(`Removed "${chapTitle}" from your library.`);
+    }
   };
 
   return (
@@ -965,22 +1083,242 @@ export default function VidyaVaaniApp() {
             ========================================================= */}
         {activeTab === "library" && (
           <div>
-            <h2 style={{ fontFamily: "Instrument Serif, Georgia, serif", fontSize: "2rem", color: "#FFFFFF", marginBottom: "4px" }}>
-              My Subjects Library
-            </h2>
-            <p style={{ color: "#9CA3AF", fontSize: "0.9rem", marginBottom: "24px" }}>
-              Switch textbook chapters or inspect grounded learning modules.
-            </p>
+            {/* Header and Upload Action Button */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
+              <div>
+                <h2 style={{ fontFamily: "Instrument Serif, Georgia, serif", fontSize: "2rem", color: "#FFFFFF", marginBottom: "4px" }}>
+                  My Subjects Library
+                </h2>
+                <p style={{ color: "#9CA3AF", fontSize: "0.9rem" }}>
+                  Switch textbook chapters, upload custom subject files or PDFs, and explore grounded learning modules.
+                </p>
+              </div>
 
+              <button
+                onClick={() => setIsUploadCardOpen(!isUploadCardOpen)}
+                style={{
+                  background: isUploadCardOpen ? "rgba(239, 68, 68, 0.15)" : "linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)",
+                  border: isUploadCardOpen ? "1px solid rgba(239, 68, 68, 0.4)" : "none",
+                  color: "#FFFFFF",
+                  padding: "10px 22px",
+                  borderRadius: "9999px",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: isUploadCardOpen ? "none" : "0 4px 18px rgba(139, 92, 246, 0.35)",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {isUploadCardOpen ? "✕ Close Upload" : "📤 Upload Subject / PDF"}
+              </button>
+            </div>
+
+            {/* Collapsible Glassmorphic Upload Card */}
+            {isUploadCardOpen && (
+              <div
+                style={{
+                  background: "#0C0C0E",
+                  border: "1px dashed rgba(139, 92, 246, 0.5)",
+                  borderRadius: "20px",
+                  padding: "24px",
+                  marginBottom: "28px",
+                  boxShadow: "0 0 30px rgba(139, 92, 246, 0.12)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "1.4rem" }}>📄</span>
+                  <div>
+                    <h3 style={{ fontSize: "1.15rem", color: "#FFFFFF", fontWeight: 600 }}>
+                      Upload Any Subject File or Textbook PDF
+                    </h3>
+                    <p style={{ color: "#9CA3AF", fontSize: "0.82rem" }}>
+                      Upload NCERT PDFs, chapter notes, or syllabi (.pdf, .txt, .md). VidyaVaani will extract pages, generate semantic vector chunks, and formulate custom quizzes and regional voice explanations.
+                    </p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleUploadSubjectFile} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {/* File Dropzone Area */}
+                  <input
+                    type="file"
+                    ref={uploadFileInputRef}
+                    accept=".pdf,.txt,.md,.text"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) {
+                        setUploadFile(f);
+                        if (!uploadTitle.trim()) {
+                          const clean = f.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+                          setUploadTitle(clean.charAt(0).toUpperCase() + clean.slice(1));
+                        }
+                      }
+                    }}
+                    style={{ display: "none" }}
+                  />
+
+                  <div
+                    onClick={() => uploadFileInputRef.current?.click()}
+                    style={{
+                      border: "2px dashed rgba(255,255,255,0.15)",
+                      borderRadius: "14px",
+                      padding: "24px",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      background: "rgba(255,255,255,0.02)",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {uploadFile ? (
+                      <div>
+                        <span style={{ fontSize: "1.8rem" }}>📁</span>
+                        <div style={{ color: "#10B981", fontWeight: 600, fontSize: "0.95rem", marginTop: "6px" }}>
+                          Selected: {uploadFile.name}
+                        </div>
+                        <div style={{ color: "#6B7280", fontSize: "0.78rem", marginTop: "2px" }}>
+                          {(uploadFile.size / 1024).toFixed(1)} KB • Click to choose a different file
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <span style={{ fontSize: "2rem" }}>☁️</span>
+                        <div style={{ color: "#FFFFFF", fontWeight: 500, fontSize: "0.95rem", marginTop: "6px" }}>
+                          Click to select or drag and drop your Subject PDF
+                        </div>
+                        <div style={{ color: "#6B7280", fontSize: "0.8rem", marginTop: "2px" }}>
+                          Supports NCERT chapter PDFs, Class Notes, Markdown (.pdf, .txt, .md up to 25MB)
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Optional Custom Metadata Inputs */}
+                  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "14px" }}>
+                    <div>
+                      <label style={{ display: "block", color: "#9CA3AF", fontSize: "0.8rem", marginBottom: "6px" }}>
+                        Subject / Chapter Title
+                      </label>
+                      <input
+                        type="text"
+                        value={uploadTitle}
+                        onChange={(e) => setUploadTitle(e.target.value)}
+                        placeholder="e.g. Class 10 History: Nationalism in India"
+                        style={{
+                          width: "100%",
+                          background: "#18181B",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                          borderRadius: "10px",
+                          padding: "10px 14px",
+                          color: "#FFFFFF",
+                          fontSize: "0.9rem",
+                          outline: "none",
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: "block", color: "#9CA3AF", fontSize: "0.8rem", marginBottom: "6px" }}>
+                        Subject Category
+                      </label>
+                      <select
+                        value={uploadSubject}
+                        onChange={(e) => setUploadSubject(e.target.value)}
+                        style={{
+                          width: "100%",
+                          background: "#18181B",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                          borderRadius: "10px",
+                          padding: "10px 14px",
+                          color: "#FFFFFF",
+                          fontSize: "0.9rem",
+                          outline: "none",
+                        }}
+                      >
+                        <option value="Science">Science (General)</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Social Science">Social Science / History</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="English">English</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Progress Status Message */}
+                  {uploadProgressMsg && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#A78BFA", fontSize: "0.85rem", background: "rgba(139,92,246,0.1)", padding: "10px 14px", borderRadius: "8px" }}>
+                      <span className="pulse-dot" />
+                      <span>{uploadProgressMsg}</span>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUploadCardOpen(false);
+                        setUploadFile(null);
+                        setUploadTitle("");
+                      }}
+                      style={{
+                        background: "transparent",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        color: "#9CA3AF",
+                        padding: "9px 20px",
+                        borderRadius: "9999px",
+                        cursor: "pointer",
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={isUploading || !uploadFile}
+                      style={{
+                        background: isUploading || !uploadFile ? "#374151" : "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                        border: "none",
+                        color: "#FFFFFF",
+                        padding: "9px 24px",
+                        borderRadius: "9999px",
+                        cursor: isUploading || !uploadFile ? "not-allowed" : "pointer",
+                        fontSize: "0.88rem",
+                        fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      {isUploading ? "Processing & Indexing..." : "⚡ Upload & Index Subject"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Combined Subject Chapters List (Default NCERT + Custom Uploaded) */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {CHAPTERS.map((sub) => {
+              {[...CHAPTERS, ...customChapters].map((sub) => {
                 const isActive = activeChapter === sub.title;
+                const isCustom = Boolean(sub.isCustom);
+
                 return (
                   <div
                     key={sub.id}
                     style={{
                       background: "#0C0C0E",
-                      border: isActive ? "1px solid rgba(16, 185, 129, 0.45)" : "1px solid rgba(255,255,255,0.06)",
+                      border: isActive
+                        ? "1px solid rgba(16, 185, 129, 0.45)"
+                        : isCustom
+                        ? "1px solid rgba(139, 92, 246, 0.35)"
+                        : "1px solid rgba(255,255,255,0.06)",
                       boxShadow: isActive ? "0 0 24px rgba(16, 185, 129, 0.12)" : "none",
                       borderRadius: "18px",
                       padding: "20px 24px",
@@ -991,11 +1329,16 @@ export default function VidyaVaaniApp() {
                     }}
                   >
                     <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                         <span style={{ fontSize: "1.1rem", color: "#FFFFFF", fontWeight: 500 }}>{sub.title}</span>
                         {isActive && (
                           <span style={{ fontSize: "0.72rem", background: "rgba(16,185,129,0.2)", color: "#10B981", border: "1px solid rgba(16,185,129,0.4)", padding: "2px 8px", borderRadius: "9999px", fontWeight: 600 }}>
                             Active
+                          </span>
+                        )}
+                        {isCustom && (
+                          <span style={{ fontSize: "0.72rem", background: "rgba(139,92,246,0.2)", color: "#C4B5FD", border: "1px solid rgba(139,92,246,0.4)", padding: "2px 8px", borderRadius: "9999px", fontWeight: 600 }}>
+                            ✨ Custom Upload ({sub.subject})
                           </span>
                         )}
                       </div>
@@ -1007,25 +1350,45 @@ export default function VidyaVaaniApp() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => {
-                        setActiveChapter(sub.title);
-                        setStatusNotification(`✨ Active chapter switched to: ${sub.title}`);
-                      }}
-                      style={{
-                        background: isActive ? "rgba(16,185,129,0.18)" : "#18181B",
-                        border: isActive ? "1px solid #10B981" : "1px solid rgba(255,255,255,0.1)",
-                        color: isActive ? "#10B981" : "#FFFFFF",
-                        padding: "8px 18px",
-                        borderRadius: "9999px",
-                        cursor: "pointer",
-                        fontSize: "0.85rem",
-                        fontWeight: 600,
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      {isActive ? "✓ Loaded" : "Load Chapter"}
-                    </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      {isCustom && (
+                        <button
+                          onClick={() => handleDeleteCustomChapter(sub.id, sub.title)}
+                          title="Remove custom subject"
+                          style={{
+                            background: "rgba(239, 68, 68, 0.12)",
+                            border: "1px solid rgba(239, 68, 68, 0.3)",
+                            color: "#EF4444",
+                            padding: "8px 12px",
+                            borderRadius: "9999px",
+                            cursor: "pointer",
+                            fontSize: "0.82rem",
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setActiveChapter(sub.title);
+                          setStatusNotification(`✨ Active chapter switched to: ${sub.title}`);
+                        }}
+                        style={{
+                          background: isActive ? "rgba(16,185,129,0.18)" : "#18181B",
+                          border: isActive ? "1px solid #10B981" : "1px solid rgba(255,255,255,0.1)",
+                          color: isActive ? "#10B981" : "#FFFFFF",
+                          padding: "8px 18px",
+                          borderRadius: "9999px",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {isActive ? "✓ Loaded" : "Load Chapter"}
+                      </button>
+                    </div>
                   </div>
                 );
               })}
